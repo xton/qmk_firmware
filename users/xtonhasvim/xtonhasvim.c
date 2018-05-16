@@ -102,6 +102,26 @@ static void simple_movement(uint16_t keycode) {
   }
 }
 
+static void comma_period(uint16_t keycode) {
+  switch (keycode) {
+  case VIM_COMMA:
+    if (SHIFTED) {
+      // indent
+      CMD(KC_LBRACKET);
+    } else {
+      // toggle comment
+      CMD(KC_SLASH);
+    }
+    break;
+  case VIM_PERIOD:
+    if (SHIFTED) {
+      // outdent
+      CMD(KC_RBRACKET);
+    }
+    break;
+  }
+}
+
 __attribute__ ((weak))
 bool process_record_keymap(uint16_t keycode, keyrecord_t *record) {
   return true;
@@ -176,7 +196,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
               break;
             case VIM_D:
               if(SHIFTED) {
-                TAP(KC_K);
+                CTRL(KC_K);
               } else {
                 vstate = VIM_D;
               }
@@ -300,19 +320,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
               }
               break;
             case VIM_COMMA:
-              if(SHIFTED) {
-                // indent
-                CMD(KC_LBRACKET);
-              } else {
-                // toggle comment
-                CMD(KC_SLASH);
-              }
-              break;
             case VIM_PERIOD:
-              if(SHIFTED) {
-                // outdent
-                CMD(KC_RBRACKET);
-              }
+              comma_period(keycode);
               break;
           }
           break;
@@ -483,6 +492,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
               TAP(KC_RIGHT);
               vstate = VIM_START;
               break;
+            case VIM_COMMA:
+            case VIM_PERIOD:
+              comma_period(keycode);
+              break;
             default:
               // do nothing
               break;
@@ -538,6 +551,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             case VIM_ESC:
               TAP(KC_RIGHT);
               vstate = VIM_START;
+              break;
+            case VIM_COMMA:
+            case VIM_PERIOD:
+              comma_period(keycode);
               break;
             default:
               // do nothing
