@@ -15,6 +15,7 @@
  */
 
 #include "xtonhasvim.h"
+#include "rgblight.h"
 
 /************************************
  * helper foo
@@ -130,9 +131,18 @@ bool process_record_keymap(uint16_t keycode, keyrecord_t *record) {
 #define PASS_THRU process_record_keymap(keycode, record)
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+
+  /****** FIREY_RETURN *****/
+  if(record->event.pressed && keycode == FIREY_RETURN) {
+    start_breath_fire();
+    TAP(KC_ENT);
+  }
+
+  /****** mod passthru *****/
   if(record->event.pressed && layer_state_is(_CMD) && IS_MOD(keycode)) {
     mod_override_layer_state = layer_state;
     mod_override_triggering_key = keycode;
+    // TODO: change this to track key location instead
     layer_clear();
     return PASS_THRU; // let the event fall through...
   }
@@ -628,5 +638,126 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     return false;
   } else {
     return PASS_THRU;
+  }
+}
+
+
+__attribute__ ((weak))
+void matrix_scan_keymap(void) {
+  // override me, if you want.
+  return;
+}
+
+
+
+#define ABSDIFF(a,b) ((a)>(b)?(a)-(b):(b)-(a))
+#define MIN(a,b) ((a)>(b)?(b):(a))
+#define MAX(a,b) ((a)<(b)?(b):(a))
+
+#define FADE_BACK_TIME 500
+#define BREATH_FIRE_TIME 2000
+#define ANIMATION_STEP_INTERVAL 20
+#define POWER_KEY_OFFSET (RGBLED_NUM / 2)
+#define SPACE_OFFSET_MAX (RGBLED_NUM / 2)
+
+
+uint8_t user_rgb_mode = 0;
+LED_TYPE last_led_color = {0};
+uint16_t effect_start_timer = 0;
+
+void start_breath_fire(void) {
+  user_rgb_mode = BREATH_FIRE;
+  effect_start_timer = timer_read();
+  last_led_color = led[9];
+}
+
+/**
+ *  [___]
+ *  [__/]
+ *  [_/\]
+ *  [/\_]
+ *  [\__]
+ *  [___]
+ **/
+
+void set_color_for_offsets(uint16_t time_offset, uint16_t space_offset, LED_TYPE *target_led) {
+  LED_TYPE target = {0xFF, 00, 00};
+  float time_progress = (float)time_offset / BREATH_FIRE_TIME;
+  float space_progress = (float)space_offset / SPACE_OFFSET_MAX;
+  float progress = time_progress * 2.0 - space_progress;
+  progress = MAX(0,MIN(1.0,progress));
+  xprintf("progress %u = %u : %u\n",
+    (uint16_t)(100*progress),
+    (uint16_t)(100*time_progress),
+    (uint16_t)(100*space_progress)
+  );
+
+  target_led->r = progress * target.r;
+  target_led->g = progress * target.g;
+  target_led->b = progress * target.b;
+}
+
+void rgb_mode_breath_fire(void) {
+  static uint16_t last_timer = 0;
+  if(!last_timer) last_timer = timer_read();
+  uint16_t this_timer = timer_read();
+
+  // too soon. don't spam updates
+  if(this_timer - last_timer < ANIMATION_STEP_INTERVAL) return;
+
+  uint16_t elapsed = this_timer - effect_start_timer;
+  xprintf("breath %d\n", elapsed);
+
+  last_timer = this_timer;
+  if(elapsed >= BREATH_FIRE_TIME) {
+    // complete
+    user_rgb_mode = FADE_BACK;
+    effect_start_timer = this_timer;
+  } else {
+    // linear fade
+    for(uint16_t i = 0; i < RGBLED_NUM; i++) {
+      uint16_t space_offset = ABSDIFF(i,POWER_KEY_OFFSET);
+      if(space_offset > SPACE_OFFSET_MAX) space_offset = RGBLED_NUM - space_offset;
+
+      set_color_for_offsets(elapsed, space_offset, &led[i]);
+    }
+    rgblight_set();
+  }
+}
+
+void rgb_mode_fade_back(void) {
+  static uint16_t last_timer = 0;
+  if(!last_timer) last_timer = timer_read();
+  uint16_t this_timer = timer_read();
+
+  // too soon. don't spam updates
+  if(this_timer - last_timer < ANIMATION_STEP_INTERVAL) return;
+
+  uint16_t elapsed = this_timer - effect_start_timer;
+  xprintf("fade %d\n", elapsed);
+
+  last_timer = this_timer;
+  if(elapsed >= FADE_BACK_TIME) {
+    // complete
+    rgblight_setrgb(last_led_color.r, last_led_color.g, last_led_color.b);
+    user_rgb_mode = 0;
+  } else {
+    // linear fade
+    rgblight_setrgb(
+      (uint8_t)(((uint32_t)last_led_color.r) * elapsed / FADE_BACK_TIME),
+      (uint8_t)(((uint32_t)last_led_color.g) * elapsed / FADE_BACK_TIME),
+      (uint8_t)(((uint32_t)last_led_color.b) * elapsed / FADE_BACK_TIME));
+  }
+}
+
+
+void matrix_scan_user(void) {
+  switch (user_rgb_mode) {
+    case BREATH_FIRE:
+      rgb_mode_breath_fire();
+      break;
+    case FADE_BACK:
+      rgb_mode_fade_back();
+      break;
   }
 }

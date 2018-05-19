@@ -26,6 +26,7 @@ bool process_record_xtonhasvim(uint16_t keycode, keyrecord_t *record);
 
 enum xtonhasvim_keycodes {
   DUMMY = SAFE_RANGE,
+  FIREY_RETURN, // kick off special effects
   VIM_START, // bookend for vim states
   VIM_A,
   VIM_B,
@@ -62,5 +63,12 @@ enum xtonhasvim_layers {
   _CMD
 };
 
+enum xtonhasvim_rgbmodes {
+  BREATH_FIRE = 1,
+  FADE_BACK
+};
+
+
+void start_breath_fire(void);
 
 #endif
