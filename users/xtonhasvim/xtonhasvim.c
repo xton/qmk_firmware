@@ -643,14 +643,11 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   }
 }
 
-
 __attribute__ ((weak))
 void matrix_scan_keymap(void) {
   // override me, if you want.
   return;
 }
-
-
 
 #define ABSDIFF(a,b) ((a)>(b)?(a)-(b):(b)-(a))
 #define MIN(a,b) ((a)>(b)?(b):(a))
@@ -664,14 +661,12 @@ void matrix_scan_keymap(void) {
 
 
 uint8_t user_rgb_mode = 0;
-// LED_TYPE last_led_color = {0};
 uint16_t effect_start_timer = 0;
 LED_TYPE shadowed_led[RGBLED_NUM] = {0};
 
-void start_breath_fire(void) {
+void start_firey_return(void) {
   user_rgb_mode = BREATH_FIRE;
   effect_start_timer = timer_read();
-  // last_led_color = led[9];
   for(uint8_t i = 0; i < RGBLED_NUM; i++) {
     shadowed_led[i] = led[i];
   }
@@ -703,7 +698,6 @@ static LED_TYPE firey_gradient[] = {
 #endif
 
 void set_color_for_offsets(uint16_t time_offset, uint16_t space_offset, uint8_t idx) {
-  // LED_TYPE target = {0xFF, 00, 00};
   float time_progress = (float)time_offset / BREATH_FIRE_TIME;
   float space_progress = (float)space_offset / SPACE_OFFSET_MAX;
   float progress = time_progress * 5.0 - space_progress;
@@ -711,14 +705,13 @@ void set_color_for_offsets(uint16_t time_offset, uint16_t space_offset, uint8_t 
     progress -= 1.0;
     progress /= 4.0;
     progress = 1.0 - progress;
-    // progress = 2.0 - progress;
   }
-  // progress = MAX(0,MIN(1.0,progress));
   progress = MAX(0.0,progress);
   progress *= progress; // squared!
 
   float alpha = (time_progress + 0.1) * 7.0 - space_progress;
   alpha = MIN(1.0, alpha*alpha);
+
 #ifdef FIRE_GRADIENT
 
   float flidx = progress * (sizeof(firey_gradient)/sizeof(*firey_gradient) - 1);
@@ -736,20 +729,6 @@ void set_color_for_offsets(uint16_t time_offset, uint16_t space_offset, uint8_t 
   led[idx].g = alpha * px[0].g + ( 1.0 - alpha) * shadowed_led[idx].g;
   led[idx].b = alpha * px[0].b + ( 1.0 - alpha) * shadowed_led[idx].b;
 #endif
-  // target_led->g = (mix * lower.g + (1.0 - mix) * higher.g);
-  // target_led->b = (mix * lower.b + (1.0 - mix) * higher.b);
-
-  // if(target_led == &led[3]) xprintf("progress %u = %u : %u [%X,%X,%X] (%u) -- %u, %u\n",
-  //     (uint16_t)(100*progress),
-  //     (uint16_t)(100*time_progress),
-  //     (uint16_t)(100*space_progress),
-  //     (uint16_t)target_led->r,
-  //     (uint16_t)target_led->g,
-  //     (uint16_t)target_led->b,
-  //     time_offset,
-  //     (uint16_t)(100*flidx),
-  //     (uint16_t)(100*mix)
-  //   );
 }
 
 void rgb_mode_breath_fire(void) {
@@ -761,7 +740,6 @@ void rgb_mode_breath_fire(void) {
   if(this_timer - last_timer < ANIMATION_STEP_INTERVAL) return;
 
   uint16_t elapsed = this_timer - effect_start_timer;
-  // xprintf("breath %d\n", elapsed);
 
   last_timer = this_timer;
   if(elapsed >= BREATH_FIRE_TIME) {
@@ -789,7 +767,6 @@ void rgb_mode_fade_back(void) {
   if(this_timer - last_timer < ANIMATION_STEP_INTERVAL) return;
 
   uint16_t elapsed = this_timer - effect_start_timer;
-  // xprintf("fade %d\n", elapsed);
 
   last_timer = this_timer;
   float progress = (float)elapsed / FADE_BACK_TIME;
@@ -799,21 +776,10 @@ void rgb_mode_fade_back(void) {
     led[i].r = shadowed_led[i].r * progress;
     led[i].g = shadowed_led[i].g * progress;
     led[i].b = shadowed_led[i].b * progress;
-    // shadowed_led[i] = led[i];
   }
   rgblight_set();
 
-  if(elapsed >= FADE_BACK_TIME) {
-    // complete
-    // rgblight_setrgb(last_led_color.r, last_led_color.g, last_led_color.b);
-    user_rgb_mode = 0;
-  } //else {
-  //   // linear fade
-  //   rgblight_setrgb(
-  //     (uint8_t)(((uint32_t)last_led_color.r) * elapsed / FADE_BACK_TIME),
-  //     (uint8_t)(((uint32_t)last_led_color.g) * elapsed / FADE_BACK_TIME),
-  //     (uint8_t)(((uint32_t)last_led_color.b) * elapsed / FADE_BACK_TIME));
-  // }
+  if(elapsed >= FADE_BACK_TIME) user_rgb_mode = 0;
 }
 
 
@@ -835,13 +801,11 @@ void rgbflag(uint8_t r, uint8_t g, uint8_t b) {
   for(int i = 0; i < RGBLED_NUM; i++){
     switch(i) {
       case 9 ... 12:
-        // rgblight_setrgb_at(r,g,b,i);
         target_led[i].r = r;
         target_led[i].g = g;
         target_led[i].b = b;
         break;
       default:
-        // rgblight_setrgb_at(0,0,0,i);
         target_led[i].r = 0;
         target_led[i].g = 0;
         target_led[i].b = 0;

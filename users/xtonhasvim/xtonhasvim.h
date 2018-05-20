@@ -69,7 +69,6 @@ enum xtonhasvim_rgbmodes {
 };
 
 
-void start_breath_fire(void);
 void rgbflag(uint8_t r, uint8_t g, uint8_t b);
 
 #endif
