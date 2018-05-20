@@ -16,6 +16,7 @@
 
 #include "xtonhasvim.h"
 #include "rgblight.h"
+#include "math.h"
 
 /************************************
  * helper foo
@@ -655,7 +656,7 @@ void matrix_scan_keymap(void) {
 #define MAX(a,b) ((a)<(b)?(b):(a))
 
 #define FADE_BACK_TIME 500
-#define BREATH_FIRE_TIME 2000
+#define BREATH_FIRE_TIME 800
 #define ANIMATION_STEP_INTERVAL 20
 #define POWER_KEY_OFFSET (RGBLED_NUM / 2)
 #define SPACE_OFFSET_MAX (RGBLED_NUM / 2)
@@ -671,7 +672,7 @@ void start_breath_fire(void) {
   last_led_color = led[9];
 }
 
-/**
+/** 0---max
  *  [___]
  *  [__/]
  *  [_/\]
@@ -680,21 +681,83 @@ void start_breath_fire(void) {
  *  [___]
  **/
 
-void set_color_for_offsets(uint16_t time_offset, uint16_t space_offset, LED_TYPE *target_led) {
-  LED_TYPE target = {0xFF, 00, 00};
-  float time_progress = (float)time_offset / BREATH_FIRE_TIME;
-  float space_progress = (float)space_offset / SPACE_OFFSET_MAX;
-  float progress = time_progress * 2.0 - space_progress;
-  progress = MAX(0,MIN(1.0,progress));
-  xprintf("progress %u = %u : %u\n",
-    (uint16_t)(100*progress),
-    (uint16_t)(100*time_progress),
-    (uint16_t)(100*space_progress)
-  );
+/** plain blackbody
+  { 0x38, 0xff, 0x00 },
+  { 0x7e, 0xff, 0x00 },
+  { 0xa5, 0xff, 0x4f },
+  { 0xc1, 0xff, 0x84 },
+  { 0xd5, 0xff, 0xad },
+  { 0xe4, 0xff, 0xce },
+  { 0xf0, 0xff, 0xe9 },
+  { 0xf9, 0xfe, 0xff }
+*/
 
-  target_led->r = progress * target.r;
-  target_led->g = progress * target.g;
-  target_led->b = progress * target.b;
+/** hand-tuned
+  { 0x20, 0xff, 0x00 },
+  // hold
+  { 0x20, 0xff, 0x00 },
+  { 0x38, 0xff, 0x00 },
+  { 0x7e, 0xff, 0x20 },
+  { 0xa5, 0xff, 0x20 },
+  { 0xc1, 0xff, 0x4f },
+  { 0xd5, 0xff, 0x84 },
+  // { 0xf0, 0xff, 0xe9 },
+  // { 0xf9, 0xfe, 0xff }
+ *
+ * */
+
+
+
+/** black body radiation curve w/ value normalized to 1 */
+/* laid out as g,r,b for some reason? */
+static LED_TYPE black_body_hs[] = {
+  { 0x00, 0x00, 0x00 },
+  { 0x00, 0x66, 0x02 },
+  { 0x2f, 0xc5, 0x0a },
+  { 0x5d, 0xff, 0x13 },
+  { 0x7d, 0xff, 0x13 },
+  { 0x9e, 0xff, 0x13 },
+  { 0xd0, 0xff, 0x8c },
+  { 0xe9, 0xff, 0x67 },
+  { 0xe9, 0xff, 0x67 },
+  { 0xe9, 0xff, 0x67 }
+};
+
+void set_color_for_offsets(uint16_t time_offset, uint16_t space_offset, LED_TYPE *target_led) {
+  // LED_TYPE target = {0xFF, 00, 00};
+  float time_progress = (float)time_offset / BREATH_FIRE_TIME -0.0;
+  float space_progress = (float)space_offset / SPACE_OFFSET_MAX;
+  float progress = time_progress * 7.0 - space_progress;
+  if(progress > 1.0) {
+    progress -= 1.0;
+    progress /= 2.0;
+    progress = 1.0 - progress;
+    // progress = 2.0 - progress;
+  }
+  // progress = MAX(0,MIN(1.0,progress));
+  progress = MAX(0.0,progress);
+  progress *= progress; // squared!
+
+  float flidx = progress * (sizeof(black_body_hs)/sizeof(*black_body_hs) - 1);
+  LED_TYPE lower = black_body_hs[(uint8_t)floor(flidx)];
+  float mix = 1.0 - (flidx - floor(flidx));
+  LED_TYPE higher = black_body_hs[(uint8_t)ceil(flidx)];
+
+  target_led->r = /* progress * */ (mix * lower.r + (1.0 - mix) * higher.r);
+  target_led->g = /* progress * */ (mix * lower.g + (1.0 - mix) * higher.g);
+  target_led->b = /* progress * */ (mix * lower.b + (1.0 - mix) * higher.b);
+
+  if(target_led == &led[3]) xprintf("progress %u = %u : %u [%X,%X,%X] (%u) -- %u, %u\n",
+      (uint16_t)(100*progress),
+      (uint16_t)(100*time_progress),
+      (uint16_t)(100*space_progress),
+      (uint16_t)target_led->r,
+      (uint16_t)target_led->g,
+      (uint16_t)target_led->b,
+      time_offset,
+      (uint16_t)(100*flidx),
+      (uint16_t)(100*mix)
+    );
 }
 
 void rgb_mode_breath_fire(void) {
@@ -706,7 +769,7 @@ void rgb_mode_breath_fire(void) {
   if(this_timer - last_timer < ANIMATION_STEP_INTERVAL) return;
 
   uint16_t elapsed = this_timer - effect_start_timer;
-  xprintf("breath %d\n", elapsed);
+  // xprintf("breath %d\n", elapsed);
 
   last_timer = this_timer;
   if(elapsed >= BREATH_FIRE_TIME) {

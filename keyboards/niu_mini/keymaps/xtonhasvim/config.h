@@ -36,7 +36,7 @@
 #define NO_DEBUG
 
 /* disable print */
-#define NO_PRINT
+// #define NO_PRINT
 
 /* speed up mousekeys a bit */
 #define MOUSEKEY_DELAY             50
