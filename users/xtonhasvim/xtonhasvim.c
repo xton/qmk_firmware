@@ -17,6 +17,7 @@
 #include "xtonhasvim.h"
 #include "rgblight.h"
 #include "math.h"
+#include "color.h"
 
 /************************************
  * helper foo
@@ -656,7 +657,7 @@ void matrix_scan_keymap(void) {
 #define MAX(a,b) ((a)<(b)?(b):(a))
 
 #define FADE_BACK_TIME 500
-#define BREATH_FIRE_TIME 800
+#define BREATH_FIRE_TIME 1500
 #define ANIMATION_STEP_INTERVAL 20
 #define POWER_KEY_OFFSET (RGBLED_NUM / 2)
 #define SPACE_OFFSET_MAX (RGBLED_NUM / 2)
@@ -685,6 +686,8 @@ void start_breath_fire(void) {
  *  [___]
  **/
 
+// #define FIRE_GRADIENT
+#ifdef FIRE_GRADIENT
 static LED_TYPE firey_gradient[] = {
   { .r = 0x00, .g = 0x00, .b = 0x00 },
   { .r = 0x66, .g = 0x00, .b = 0x02 },
@@ -697,15 +700,16 @@ static LED_TYPE firey_gradient[] = {
   { .r = 0xff, .g = 0xe9, .b = 0x67 },
   { .r = 0xff, .g = 0xe9, .b = 0x67 }
 };
+#endif
 
 void set_color_for_offsets(uint16_t time_offset, uint16_t space_offset, uint8_t idx) {
   // LED_TYPE target = {0xFF, 00, 00};
   float time_progress = (float)time_offset / BREATH_FIRE_TIME;
   float space_progress = (float)space_offset / SPACE_OFFSET_MAX;
-  float progress = time_progress * 7.0 - space_progress;
+  float progress = time_progress * 8.0 - space_progress;
   if(progress > 1.0) {
     progress -= 1.0;
-    progress /= 2.0;
+    progress /= 4.0;
     progress = 1.0 - progress;
     // progress = 2.0 - progress;
   }
@@ -713,8 +717,9 @@ void set_color_for_offsets(uint16_t time_offset, uint16_t space_offset, uint8_t 
   progress = MAX(0.0,progress);
   progress *= progress; // squared!
 
-  float alpha = (time_progress + 0.1) * 10.0 - space_progress;
+  float alpha = (time_progress + 0.1) * 7.0 - space_progress;
   alpha = MIN(1.0, alpha*alpha);
+#ifdef FIRE_GRADIENT
 
   float flidx = progress * (sizeof(firey_gradient)/sizeof(*firey_gradient) - 1);
   LED_TYPE lower = firey_gradient[(uint8_t)floor(flidx)];
@@ -724,8 +729,13 @@ void set_color_for_offsets(uint16_t time_offset, uint16_t space_offset, uint8_t 
   led[idx].r = alpha * (mix * lower.r + (1.0 - mix) * higher.r) + ( 1.0 - alpha) * shadowed_led[idx].r;
   led[idx].g = alpha * (mix * lower.g + (1.0 - mix) * higher.g) + ( 1.0 - alpha) * shadowed_led[idx].g;
   led[idx].b = alpha * (mix * lower.b + (1.0 - mix) * higher.b) + ( 1.0 - alpha) * shadowed_led[idx].b;
-
-
+#else
+  LED_TYPE px[1] = {0};
+  sethsv((uint16_t)(fmod(time_progress * 1.5 + space_progress,1.0)*360), 255, (uint8_t)(progress*255),&px[0]);
+  led[idx].r = alpha * px[0].r + ( 1.0 - alpha) * shadowed_led[idx].r;
+  led[idx].g = alpha * px[0].g + ( 1.0 - alpha) * shadowed_led[idx].g;
+  led[idx].b = alpha * px[0].b + ( 1.0 - alpha) * shadowed_led[idx].b;
+#endif
   // target_led->g = (mix * lower.g + (1.0 - mix) * higher.g);
   // target_led->b = (mix * lower.b + (1.0 - mix) * higher.b);
 
