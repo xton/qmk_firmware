@@ -152,26 +152,26 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 };
 
-/** Set just 4 LEDs closest to the user. Slightly less annoying to bystanders.*/
-void rgbflag(uint8_t r, uint8_t g, uint8_t b) {
-  for(int i = 0; i < RGBLED_NUM; i++){
-    switch(i) {
-      case 9 ... 12:
-        // rgblight_setrgb_at(r,g,b,i);
-        led[i].r = r;
-        led[i].g = g;
-        led[i].b = b;
-        break;
-      default:
-        // rgblight_setrgb_at(0,0,0,i);
-        led[i].r = 0;
-        led[i].g = 0;
-        led[i].b = 0;
-        break;
-    }
-  }
-  rgblight_set();
-}
+// /** Set just 4 LEDs closest to the user. Slightly less annoying to bystanders.*/
+// void rgbflag(uint8_t r, uint8_t g, uint8_t b) {
+//   for(int i = 0; i < RGBLED_NUM; i++){
+//     switch(i) {
+//       case 9 ... 12:
+//         // rgblight_setrgb_at(r,g,b,i);
+//         led[i].r = r;
+//         led[i].g = g;
+//         led[i].b = b;
+//         break;
+//       default:
+//         // rgblight_setrgb_at(0,0,0,i);
+//         led[i].r = 0;
+//         led[i].g = 0;
+//         led[i].b = 0;
+//         break;
+//     }
+//   }
+//   rgblight_set();
+// }
 
 uint32_t layer_state_set_user(uint32_t state) {
   if(rgblight_get_mode() == 1) {

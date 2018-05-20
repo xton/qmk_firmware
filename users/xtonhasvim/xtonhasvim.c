@@ -663,13 +663,17 @@ void matrix_scan_keymap(void) {
 
 
 uint8_t user_rgb_mode = 0;
-LED_TYPE last_led_color = {0};
+// LED_TYPE last_led_color = {0};
 uint16_t effect_start_timer = 0;
+LED_TYPE shadowed_led[RGBLED_NUM] = {0};
 
 void start_breath_fire(void) {
   user_rgb_mode = BREATH_FIRE;
   effect_start_timer = timer_read();
-  last_led_color = led[9];
+  // last_led_color = led[9];
+  for(uint8_t i = 0; i < RGBLED_NUM; i++) {
+    shadowed_led[i] = led[i];
+  }
 }
 
 /** 0---max
@@ -681,36 +685,8 @@ void start_breath_fire(void) {
  *  [___]
  **/
 
-/** plain blackbody
-  { 0x38, 0xff, 0x00 },
-  { 0x7e, 0xff, 0x00 },
-  { 0xa5, 0xff, 0x4f },
-  { 0xc1, 0xff, 0x84 },
-  { 0xd5, 0xff, 0xad },
-  { 0xe4, 0xff, 0xce },
-  { 0xf0, 0xff, 0xe9 },
-  { 0xf9, 0xfe, 0xff }
-*/
-
-/** hand-tuned
-  { 0x20, 0xff, 0x00 },
-  // hold
-  { 0x20, 0xff, 0x00 },
-  { 0x38, 0xff, 0x00 },
-  { 0x7e, 0xff, 0x20 },
-  { 0xa5, 0xff, 0x20 },
-  { 0xc1, 0xff, 0x4f },
-  { 0xd5, 0xff, 0x84 },
-  // { 0xf0, 0xff, 0xe9 },
-  // { 0xf9, 0xfe, 0xff }
- *
- * */
-
-
-
-/** black body radiation curve w/ value normalized to 1 */
 /* laid out as g,r,b for some reason? */
-static LED_TYPE black_body_hs[] = {
+static LED_TYPE firey_gradient[] = {
   { 0x00, 0x00, 0x00 },
   { 0x00, 0x66, 0x02 },
   { 0x2f, 0xc5, 0x0a },
@@ -738,26 +714,26 @@ void set_color_for_offsets(uint16_t time_offset, uint16_t space_offset, LED_TYPE
   progress = MAX(0.0,progress);
   progress *= progress; // squared!
 
-  float flidx = progress * (sizeof(black_body_hs)/sizeof(*black_body_hs) - 1);
-  LED_TYPE lower = black_body_hs[(uint8_t)floor(flidx)];
+  float flidx = progress * (sizeof(firey_gradient)/sizeof(*firey_gradient) - 1);
+  LED_TYPE lower = firey_gradient[(uint8_t)floor(flidx)];
   float mix = 1.0 - (flidx - floor(flidx));
-  LED_TYPE higher = black_body_hs[(uint8_t)ceil(flidx)];
+  LED_TYPE higher = firey_gradient[(uint8_t)ceil(flidx)];
 
-  target_led->r = /* progress * */ (mix * lower.r + (1.0 - mix) * higher.r);
-  target_led->g = /* progress * */ (mix * lower.g + (1.0 - mix) * higher.g);
-  target_led->b = /* progress * */ (mix * lower.b + (1.0 - mix) * higher.b);
+  target_led->r = (mix * lower.r + (1.0 - mix) * higher.r);
+  target_led->g = (mix * lower.g + (1.0 - mix) * higher.g);
+  target_led->b = (mix * lower.b + (1.0 - mix) * higher.b);
 
-  if(target_led == &led[3]) xprintf("progress %u = %u : %u [%X,%X,%X] (%u) -- %u, %u\n",
-      (uint16_t)(100*progress),
-      (uint16_t)(100*time_progress),
-      (uint16_t)(100*space_progress),
-      (uint16_t)target_led->r,
-      (uint16_t)target_led->g,
-      (uint16_t)target_led->b,
-      time_offset,
-      (uint16_t)(100*flidx),
-      (uint16_t)(100*mix)
-    );
+  // if(target_led == &led[3]) xprintf("progress %u = %u : %u [%X,%X,%X] (%u) -- %u, %u\n",
+  //     (uint16_t)(100*progress),
+  //     (uint16_t)(100*time_progress),
+  //     (uint16_t)(100*space_progress),
+  //     (uint16_t)target_led->r,
+  //     (uint16_t)target_led->g,
+  //     (uint16_t)target_led->b,
+  //     time_offset,
+  //     (uint16_t)(100*flidx),
+  //     (uint16_t)(100*mix)
+  //   );
 }
 
 void rgb_mode_breath_fire(void) {
@@ -797,20 +773,31 @@ void rgb_mode_fade_back(void) {
   if(this_timer - last_timer < ANIMATION_STEP_INTERVAL) return;
 
   uint16_t elapsed = this_timer - effect_start_timer;
-  xprintf("fade %d\n", elapsed);
+  // xprintf("fade %d\n", elapsed);
 
   last_timer = this_timer;
+  float progress = (float)elapsed / FADE_BACK_TIME;
+  progress = MIN(1.0,progress);
+
+  for(uint8_t i = 0; i < RGBLED_NUM; i++) {
+    led[i].r = shadowed_led[i].r * progress;
+    led[i].g = shadowed_led[i].g * progress;
+    led[i].b = shadowed_led[i].b * progress;
+    // shadowed_led[i] = led[i];
+  }
+  rgblight_set();
+
   if(elapsed >= FADE_BACK_TIME) {
     // complete
-    rgblight_setrgb(last_led_color.r, last_led_color.g, last_led_color.b);
+    // rgblight_setrgb(last_led_color.r, last_led_color.g, last_led_color.b);
     user_rgb_mode = 0;
-  } else {
-    // linear fade
-    rgblight_setrgb(
-      (uint8_t)(((uint32_t)last_led_color.r) * elapsed / FADE_BACK_TIME),
-      (uint8_t)(((uint32_t)last_led_color.g) * elapsed / FADE_BACK_TIME),
-      (uint8_t)(((uint32_t)last_led_color.b) * elapsed / FADE_BACK_TIME));
-  }
+  } //else {
+  //   // linear fade
+  //   rgblight_setrgb(
+  //     (uint8_t)(((uint32_t)last_led_color.r) * elapsed / FADE_BACK_TIME),
+  //     (uint8_t)(((uint32_t)last_led_color.g) * elapsed / FADE_BACK_TIME),
+  //     (uint8_t)(((uint32_t)last_led_color.b) * elapsed / FADE_BACK_TIME));
+  // }
 }
 
 
@@ -823,4 +810,26 @@ void matrix_scan_user(void) {
       rgb_mode_fade_back();
       break;
   }
+}
+
+/** Set just 4 LEDs closest to the user. Slightly less annoying to bystanders.*/
+void rgbflag(uint8_t r, uint8_t g, uint8_t b) {
+  LED_TYPE *target_led = user_rgb_mode ? shadowed_led : led;
+  for(int i = 0; i < RGBLED_NUM; i++){
+    switch(i) {
+      case 9 ... 12:
+        // rgblight_setrgb_at(r,g,b,i);
+        target_led[i].r = r;
+        target_led[i].g = g;
+        target_led[i].b = b;
+        break;
+      default:
+        // rgblight_setrgb_at(0,0,0,i);
+        target_led[i].r = 0;
+        target_led[i].g = 0;
+        target_led[i].b = 0;
+        break;
+    }
+  }
+  if(!user_rgb_mode) rgblight_set();
 }
