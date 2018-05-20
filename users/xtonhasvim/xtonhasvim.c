@@ -685,23 +685,22 @@ void start_breath_fire(void) {
  *  [___]
  **/
 
-/* laid out as g,r,b for some reason? */
 static LED_TYPE firey_gradient[] = {
-  { 0x00, 0x00, 0x00 },
-  { 0x00, 0x66, 0x02 },
-  { 0x2f, 0xc5, 0x0a },
-  { 0x5d, 0xff, 0x13 },
-  { 0x7d, 0xff, 0x13 },
-  { 0x9e, 0xff, 0x13 },
-  { 0xd0, 0xff, 0x8c },
-  { 0xe9, 0xff, 0x67 },
-  { 0xe9, 0xff, 0x67 },
-  { 0xe9, 0xff, 0x67 }
+  { .r = 0x00, .g = 0x00, .b = 0x00 },
+  { .r = 0x66, .g = 0x00, .b = 0x02 },
+  { .r = 0xc5, .g = 0x2f, .b = 0x0a },
+  { .r = 0xff, .g = 0x5d, .b = 0x13 },
+  { .r = 0xff, .g = 0x7d, .b = 0x13 },
+  { .r = 0xff, .g = 0x9e, .b = 0x13 },
+  { .r = 0xff, .g = 0xd0, .b = 0x8c },
+  { .r = 0xff, .g = 0xe9, .b = 0x67 },
+  { .r = 0xff, .g = 0xe9, .b = 0x67 },
+  { .r = 0xff, .g = 0xe9, .b = 0x67 }
 };
 
-void set_color_for_offsets(uint16_t time_offset, uint16_t space_offset, LED_TYPE *target_led) {
+void set_color_for_offsets(uint16_t time_offset, uint16_t space_offset, uint8_t idx) {
   // LED_TYPE target = {0xFF, 00, 00};
-  float time_progress = (float)time_offset / BREATH_FIRE_TIME -0.0;
+  float time_progress = (float)time_offset / BREATH_FIRE_TIME;
   float space_progress = (float)space_offset / SPACE_OFFSET_MAX;
   float progress = time_progress * 7.0 - space_progress;
   if(progress > 1.0) {
@@ -714,14 +713,21 @@ void set_color_for_offsets(uint16_t time_offset, uint16_t space_offset, LED_TYPE
   progress = MAX(0.0,progress);
   progress *= progress; // squared!
 
+  float alpha = (time_progress + 0.1) * 10.0 - space_progress;
+  alpha = MIN(1.0, alpha*alpha);
+
   float flidx = progress * (sizeof(firey_gradient)/sizeof(*firey_gradient) - 1);
   LED_TYPE lower = firey_gradient[(uint8_t)floor(flidx)];
   float mix = 1.0 - (flidx - floor(flidx));
   LED_TYPE higher = firey_gradient[(uint8_t)ceil(flidx)];
 
-  target_led->r = (mix * lower.r + (1.0 - mix) * higher.r);
-  target_led->g = (mix * lower.g + (1.0 - mix) * higher.g);
-  target_led->b = (mix * lower.b + (1.0 - mix) * higher.b);
+  led[idx].r = alpha * (mix * lower.r + (1.0 - mix) * higher.r) + ( 1.0 - alpha) * shadowed_led[idx].r;
+  led[idx].g = alpha * (mix * lower.g + (1.0 - mix) * higher.g) + ( 1.0 - alpha) * shadowed_led[idx].g;
+  led[idx].b = alpha * (mix * lower.b + (1.0 - mix) * higher.b) + ( 1.0 - alpha) * shadowed_led[idx].b;
+
+
+  // target_led->g = (mix * lower.g + (1.0 - mix) * higher.g);
+  // target_led->b = (mix * lower.b + (1.0 - mix) * higher.b);
 
   // if(target_led == &led[3]) xprintf("progress %u = %u : %u [%X,%X,%X] (%u) -- %u, %u\n",
   //     (uint16_t)(100*progress),
@@ -758,7 +764,7 @@ void rgb_mode_breath_fire(void) {
       uint16_t space_offset = ABSDIFF(i,POWER_KEY_OFFSET);
       if(space_offset > SPACE_OFFSET_MAX) space_offset = RGBLED_NUM - space_offset;
 
-      set_color_for_offsets(elapsed, space_offset, &led[i]);
+      set_color_for_offsets(elapsed, space_offset, i);
     }
     rgblight_set();
   }
