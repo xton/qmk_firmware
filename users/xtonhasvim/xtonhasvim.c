@@ -657,7 +657,7 @@ void matrix_scan_keymap(void) {
 #define MAX(a,b) ((a)<(b)?(b):(a))
 
 #define FADE_BACK_TIME 500
-#define BREATH_FIRE_TIME 1500
+#define BREATH_FIRE_TIME 1000
 #define ANIMATION_STEP_INTERVAL 20
 #define POWER_KEY_OFFSET (RGBLED_NUM / 2)
 #define SPACE_OFFSET_MAX (RGBLED_NUM / 2)
@@ -706,7 +706,7 @@ void set_color_for_offsets(uint16_t time_offset, uint16_t space_offset, uint8_t 
   // LED_TYPE target = {0xFF, 00, 00};
   float time_progress = (float)time_offset / BREATH_FIRE_TIME;
   float space_progress = (float)space_offset / SPACE_OFFSET_MAX;
-  float progress = time_progress * 8.0 - space_progress;
+  float progress = time_progress * 5.0 - space_progress;
   if(progress > 1.0) {
     progress -= 1.0;
     progress /= 4.0;
@@ -826,6 +826,7 @@ void matrix_scan_user(void) {
       rgb_mode_fade_back();
       break;
   }
+  matrix_scan_keymap();
 }
 
 /** Set just 4 LEDs closest to the user. Slightly less annoying to bystanders.*/
