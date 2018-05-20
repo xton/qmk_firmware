@@ -61,6 +61,7 @@ static bool yank_was_lines = false;
 static bool SHIFTED = false;
 static uint32_t mod_override_layer_state = 0;
 static uint16_t mod_override_triggering_key = 0;
+void start_firey_return(void);
 
 static void edit(void) { vstate = VIM_START; layer_on(_EDIT); layer_off(_CMD); }
 #define EDIT edit()
@@ -136,7 +137,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
   /****** FIREY_RETURN *****/
   if(record->event.pressed && keycode == FIREY_RETURN) {
-    start_breath_fire();
+    start_firey_return();
     TAP(KC_ENT);
   }
 
