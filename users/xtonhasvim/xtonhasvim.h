@@ -58,10 +58,8 @@ enum xtonhasvim_keycodes {
   VIM_SAFE_RANGE // start other keycodes here.
 };
 
-enum xtonhasvim_layers {
-  _EDIT = 12,
-  _CMD
-};
+// NOTE: YOU MUST DEFINE THIS
+extern uint8_t vim_cmd_layer(void);
 
 enum xtonhasvim_rgbmodes {
   BREATH_FIRE = 1,

@@ -63,7 +63,7 @@ static uint32_t mod_override_layer_state = 0;
 static uint16_t mod_override_triggering_key = 0;
 void start_firey_return(void);
 
-static void edit(void) { vstate = VIM_START; layer_on(_EDIT); layer_off(_CMD); }
+static void edit(void) { vstate = VIM_START; layer_clear(); }
 #define EDIT edit()
 
 
@@ -131,9 +131,9 @@ bool process_record_keymap(uint16_t keycode, keyrecord_t *record) {
   return true;
 }
 
-#define PASS_THRU process_record_keymap(keycode, record)
-
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+  /* keymap gets first whack */
+  if(!process_record_keymap(keycode, record)) return false;
 
   /****** FIREY_RETURN *****/
   if(record->event.pressed && keycode == FIREY_RETURN) {
@@ -142,18 +142,18 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   }
 
   /****** mod passthru *****/
-  if(record->event.pressed && layer_state_is(_CMD) && (IS_MOD(keycode) || keycode == LSFT(KC_LALT))) {
+  if(record->event.pressed && layer_state_is(vim_cmd_layer()) && (IS_MOD(keycode) || keycode == LSFT(KC_LALT))) {
     mod_override_layer_state = layer_state;
     mod_override_triggering_key = keycode;
     // TODO: change this to track key location instead
     layer_clear();
-    return PASS_THRU; // let the event fall through...
+    return true; // let the event fall through...
   }
   if(mod_override_layer_state && !record->event.pressed && keycode == mod_override_triggering_key) {
     layer_state_set(mod_override_layer_state);
     mod_override_layer_state = 0;
     mod_override_triggering_key = 0;
-    return PASS_THRU;
+    return true;
   }
 
   if (VIM_START <= keycode && keycode <= VIM_ESC) {
@@ -165,7 +165,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     if (record->event.pressed) {
       if(keycode == VIM_START) {
         // entry from anywhere
-        layer_on(_CMD);
+        layer_on(vim_cmd_layer());
         vstate = VIM_START;
 
         // reset state
@@ -640,7 +640,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
     return false;
   } else {
-    return PASS_THRU;
+    return true;
   }
 }
 
@@ -651,6 +651,12 @@ void matrix_scan_keymap(void) {
 }
 
 #define ABSDIFF(a,b) ((a)>(b)?(a)-(b):(b)-(a))
+#ifdef MAX
+#undef MAX
+#endif
+#ifdef MIN
+#undef MIN
+#endif
 #define MIN(a,b) ((a)>(b)?(b):(a))
 #define MAX(a,b) ((a)<(b)?(b):(a))
 

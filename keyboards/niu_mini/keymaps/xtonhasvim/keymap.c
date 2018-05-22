@@ -28,7 +28,15 @@ enum layers {
   _RAISE,
   _ADJUST,
   _MOVE,
-  _MOUSE
+  _MOUSE,
+  _CMD
+};
+
+extern uint8_t vim_cmd_layer(void) { return _CMD; }
+
+enum keymap_keycodes {
+  RAISE = VIM_SAFE_RANGE,
+  LOWER
 };
 
 /************************************
@@ -56,7 +64,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   {KC_TAB,  KC_Q,           KC_W,    KC_E,    KC_R,          KC_T,    KC_Y,    KC_U,          KC_I,    KC_O,    KC_P,              KC_BSPC},
   {LCTL_T(KC_ESC), LT(_MOVE,KC_A), KC_S,    KC_D,    KC_F,          KC_G,    KC_H,    KC_J,          KC_K,    KC_L,    LT(_MOVE,KC_SCLN), KC_QUOT},
   {KC_LSFT, KC_Z,           KC_X,    KC_C,    KC_V,          KC_B,    KC_N,    KC_M,          KC_COMM, KC_DOT,  KC_SLSH,   RSFT_T(KC_ENT) },
-  {LSFT(KC_LALT), TG(_MOUSE),  KC_LALT, KC_LGUI, OSL(_LOWER),   KC_SPC,  KC_SPC,  OSL(_RAISE),   KC_LGUI, KC_LALT, X_____X, VIM_START }
+  {LSFT(KC_LALT), TG(_MOUSE),  KC_LALT, KC_LGUI, LOWER,   KC_SPC,  KC_SPC, RAISE,   KC_LGUI, KC_LALT, X_____X, VIM_START }
 },
 
 /* Lower
@@ -74,7 +82,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   {KC_TILD,  KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,   KC_UNDS,    KC_PLUS,    KC_LCBR, KC_RCBR, KC_BSPC},
   {KC_DEL, KC_EXLM, KC_AT,   KC_HASH, KC_DLR,  KC_PERC, KC_CIRC, KC_AMPR,    KC_ASTR,    KC_LPRN, KC_RPRN, KC_PIPE},
   {_______, KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,  X_____X, X_____X, X_____X, X_____X, FIREY_RETURN},
-  {_______, TO(_QWERTY), _______, _______, _______, KC_BSPC, KC_BSPC, OSL(_ADJUST),    _______,    _______, TO(_QWERTY), X_____X}
+  {_______, TO(_QWERTY), _______, _______, _______, KC_BSPC, KC_BSPC, _______,    _______,    _______, TO(_QWERTY), X_____X}
 },
 
 /* Raise
@@ -92,7 +100,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   {KC_GRV,  KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,   KC_MINS, KC_EQL,  KC_LBRC, KC_RBRC, KC_BSPC},
   {KC_DEL,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,    KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_BSLS},
   {_______, KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,  X_____X, X_____X, X_____X, X_____X, FIREY_RETURN},
-  {_______, TO(_QWERTY), _______, _______, OSL(_ADJUST), X_____X, X_____X, _______, _______, _______, TO(_QWERTY), X_____X}
+  {_______, TO(_QWERTY), _______, _______, _______, KC_BSPC, KC_BSPC, _______, _______, _______, TO(_QWERTY), X_____X}
 },
 
 
@@ -131,14 +139,6 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   {_______,     X_____X, KC_MS_LEFT, KC_MS_DOWN, KC_MS_RIGHT, X_____X, X_____X, KC_MS_BTN1, KC_MS_BTN2, KC_MS_BTN3, X_____X, X_____X},
   {_______,     X_____X, X_____X, X_____X, X_____X, X_____X, X_____X, X_____X, X_____X, X_____X, X_____X, _______},
   {_______,     TO(_QWERTY), _______, _______, _______, X_____X, X_____X, _______, _______, _______, TO(_QWERTY), X_____X}
-},
-
-/* vim edit mode. just has an escape -> _CMD key */
-[_EDIT] = {
-  {_______,     _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______},
-  {VIM_START,   _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______},
-  {_______,     _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______},
-  {_______,     TO(_QWERTY), _______, _______, _______, _______, _______, _______, _______, _______, TO(_QWERTY), _______}
 },
 
 /* vim command layer.
@@ -229,12 +229,35 @@ void set_state_leds(void) {
           break;
       }
       break;
-    case _EDIT:
-      rgbflag(C_YAN, C_PRP);
-      break;
     default: //  for any other layers, or the default layer
       rgbflag(C_YAN, C_YAN);
       break;
     }
   }
+}
+
+bool process_record_keymap(uint16_t keycode, keyrecord_t *record) {
+  switch(keycode) {
+    case LOWER:
+      if (record->event.pressed) {
+        layer_on(_LOWER);
+        update_tri_layer(_LOWER, _RAISE, _ADJUST);
+      } else {
+        layer_off(_LOWER);
+        update_tri_layer(_LOWER, _RAISE, _ADJUST);
+      }
+      return false;
+      break;
+    case RAISE:
+      if (record->event.pressed) {
+        layer_on(_RAISE);
+        update_tri_layer(_LOWER, _RAISE, _ADJUST);
+      } else {
+        layer_off(_RAISE);
+        update_tri_layer(_LOWER, _RAISE, _ADJUST);
+      }
+      return false;
+      break;
+  }
+  return true;
 }
