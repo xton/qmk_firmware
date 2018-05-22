@@ -142,7 +142,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   }
 
   /****** mod passthru *****/
-  if(record->event.pressed && layer_state_is(_CMD) && IS_MOD(keycode & 0xFF)) {
+  if(record->event.pressed && layer_state_is(_CMD) && (IS_MOD(keycode) || keycode == LSFT(KC_LALT))) {
     mod_override_layer_state = layer_state;
     mod_override_triggering_key = keycode;
     // TODO: change this to track key location instead
