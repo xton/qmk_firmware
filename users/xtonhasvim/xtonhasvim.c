@@ -56,7 +56,7 @@ static void ALT(uint16_t keycode) {
 }
 
 
-static uint16_t vstate = VIM_START;
+uint16_t vstate = VIM_START;
 static bool yank_was_lines = false;
 static bool SHIFTED = false;
 static uint32_t mod_override_layer_state = 0;
@@ -783,8 +783,19 @@ void rgb_mode_fade_back(void) {
   if(elapsed >= FADE_BACK_TIME) user_rgb_mode = 0;
 }
 
+/** called when layer state or vstate has changed */
+__attribute__ ((weak))
+void set_state_leds(void) {
+  return;
+}
 
 void matrix_scan_user(void) {
+  static uint32_t last_layer = 0;
+  static uint32_t last_vstate = 0;
+  if(last_layer != layer_state || last_vstate != vstate) set_state_leds();
+  last_layer = layer_state;
+  last_vstate = vstate;
+
   switch (user_rgb_mode) {
     case BREATH_FIRE:
       rgb_mode_breath_fire();
@@ -794,24 +805,4 @@ void matrix_scan_user(void) {
       break;
   }
   matrix_scan_keymap();
-}
-
-/** Set just 4 LEDs closest to the user. Slightly less annoying to bystanders.*/
-void rgbflag(uint8_t r, uint8_t g, uint8_t b) {
-  LED_TYPE *target_led = user_rgb_mode ? shadowed_led : led;
-  for(int i = 0; i < RGBLED_NUM; i++){
-    switch(i) {
-      case 9 ... 12:
-        target_led[i].r = r;
-        target_led[i].g = g;
-        target_led[i].b = b;
-        break;
-      default:
-        target_led[i].r = 0;
-        target_led[i].g = 0;
-        target_led[i].b = 0;
-        break;
-    }
-  }
-  if(!user_rgb_mode) rgblight_set();
 }

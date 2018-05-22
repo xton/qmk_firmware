@@ -68,7 +68,6 @@ enum xtonhasvim_rgbmodes {
   FADE_BACK
 };
 
-
-void rgbflag(uint8_t r, uint8_t g, uint8_t b);
+extern uint16_t vstate;
 
 #endif
