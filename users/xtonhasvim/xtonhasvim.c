@@ -667,8 +667,8 @@ void matrix_scan_keymap(void) {
 #define SPACE_OFFSET_MAX (RGBLED_NUM / 2)
 
 
-uint8_t user_rgb_mode = 0;
 uint16_t effect_start_timer = 0;
+uint8_t user_rgb_mode = 0;
 LED_TYPE shadowed_led[RGBLED_NUM] = {0};
 
 void start_firey_return(void) {

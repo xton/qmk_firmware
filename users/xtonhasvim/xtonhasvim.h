@@ -67,5 +67,7 @@ enum xtonhasvim_rgbmodes {
 };
 
 extern uint16_t vstate;
+extern uint8_t user_rgb_mode;
+extern LED_TYPE shadowed_led[];
 
 #endif
