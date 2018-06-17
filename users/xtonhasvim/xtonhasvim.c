@@ -132,6 +132,8 @@ bool process_record_keymap(uint16_t keycode, keyrecord_t *record) {
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+  if(record->event.pressed) keyboard_heat += 0.5;
+
   /* keymap gets first whack */
   if(!process_record_keymap(keycode, record)) return false;
 
@@ -811,4 +813,23 @@ void matrix_scan_user(void) {
       break;
   }
   matrix_scan_keymap();
+  keyboard_has_heat();
+}
+
+float keyboard_heat = 0;
+float decay_fraction = 0.9;
+float decay_step = 0.01; // to make sure we hit zero eventually
+
+
+void keyboard_has_heat(void) {
+  static uint16_t last_timer = 0;
+  uint16_t this_timer = timer_read();
+  // too soon. don't spam updates
+  if(this_timer - last_timer < ANIMATION_STEP_INTERVAL) return;
+  last_timer = this_timer;
+
+  keyboard_heat *= decay_fraction;
+  keyboard_heat -= decay_step;
+
+  if(keyboard_heat > 0.0) xprintf("heat: %u\n", (uint16_t)(1000*keyboard_heat));
 }
