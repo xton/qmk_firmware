@@ -67,9 +67,13 @@ enum xtonhasvim_rgbmodes {
 };
 
 extern uint16_t vstate;
+
+#ifdef RGBLIGHT_ENABLE
+
 extern uint8_t user_rgb_mode;
 extern LED_TYPE shadowed_led[];
-extern float keyboard_heat;
 void keyboard_has_heat(void);
+#endif
+extern float keyboard_heat;
 
 #endif

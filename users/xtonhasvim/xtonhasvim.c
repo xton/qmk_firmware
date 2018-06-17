@@ -15,9 +15,12 @@
  */
 
 #include "xtonhasvim.h"
-#include "rgblight.h"
 #include "math.h"
+
+#ifdef RGBLIGHT_ENABLE
+#include "rgblight.h"
 #include "color.h"
+#endif
 
 /************************************
  * helper foo
@@ -646,6 +649,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   }
 }
 
+#ifdef RGBLIGHT_ENABLE
+
 __attribute__ ((weak))
 void matrix_scan_keymap(void) {
   // override me, if you want.
@@ -833,3 +838,10 @@ void keyboard_has_heat(void) {
 
   if(keyboard_heat > 0.0) xprintf("heat: %u\n", (uint16_t)(1000*keyboard_heat));
 }
+#else
+
+//noop
+float keyboard_heat = 0;
+void start_firey_return(void) {}
+
+#endif
