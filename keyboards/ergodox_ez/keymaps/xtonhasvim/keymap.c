@@ -68,7 +68,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                   RAISE,  KC_LGUI,KC_LALT,X_____X,  X_____X,
              X_____X, X_____X,
              X_____X,
-             X_____X, X_____X, VIM_START
+             X_____X, VIM_START, KC_SPACE
     ),
 /*
  * ,--------------------------------------------------.           ,--------------------------------------------------.
