@@ -14,9 +14,7 @@ enum layers {
   _QWERTY,
   _LOWER,
   _RAISE,
-  _ADJUST,
   _MOVE,
-  _MOUSE,
   _CMD
 };
 
@@ -178,8 +176,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 [_MOVE] = LAYOUT_ergodox(
        // left hand
        X_____X,X_____X,  X_____X,  X_____X,  X_____X,  X_____X,  X_____X,
-       X_____X,KC_HOME, KC_PGDN, KC_PGUP, KC_END,,  X_____X,  X_____X,
-       _______,X_____X, LGUI(KC_LBRC), LGUI(LSFT(KC_LBRC)), LGUI(LSFT(KC_RBRC)), LGUI(KC_RBRC),
+       X_____X,KC_HOME,  KC_PGDN,  KC_PGUP,  KC_END,   X_____X,  X_____X,
+       _______,X_____X,  LGUI(KC_LBRC), LGUI(LSFT(KC_LBRC)), LGUI(LSFT(KC_RBRC)), LGUI(KC_RBRC),
        _______,X_____X,  X_____X,  X_____X,  X_____X,  X_____X,  X_____X,
        _______,_______,_______,_______,_______,
                                        X_____X,X_____X,
@@ -216,54 +214,115 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  *                                 |      |      |      |       |      |      |      |
  *                                 `--------------------'       `--------------------'
  */
-// MEDIA AND MOUSE
-[MDIA] = LAYOUT_ergodox(
-       KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
-       KC_TRNS, KC_TRNS, KC_TRNS, KC_MS_U, KC_TRNS, KC_TRNS, KC_TRNS,
-       KC_TRNS, KC_TRNS, KC_MS_L, KC_MS_D, KC_MS_R, KC_TRNS,
-       KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
-       KC_TRNS, KC_TRNS, KC_TRNS, KC_BTN1, KC_BTN2,
-                                           KC_TRNS, KC_TRNS,
-                                                    KC_TRNS,
-                                  KC_TRNS, KC_TRNS, KC_TRNS,
-    // right hand
-       KC_TRNS,  KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
-       KC_TRNS,  KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
-                 KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_MPLY,
-       KC_TRNS,  KC_TRNS, KC_TRNS, KC_MPRV, KC_MNXT, KC_TRNS, KC_TRNS,
-                          KC_VOLU, KC_VOLD, KC_MUTE, KC_TRNS, KC_TRNS,
-       KC_TRNS, KC_TRNS,
-       KC_TRNS,
-       KC_TRNS, KC_TRNS, KC_WBAK
-),
+/* vim cmd layer
+ *
+ * ,--------------------------------------------------.           ,--------------------------------------------------.
+ * |   `    |   1  |   2  |   3  |   4  |   5  |      |           |      |   6  |   7  |   8  |   9  |   0  | Bksp   |
+ * |--------+------+------+------+------+-------------|           |------+------+------+------+------+------+--------|
+ * | Tab    |   Q  |   W  |   E  |   R  |   T  |      |           |      |   Y  |   U  |   I  |   O  |   P  | Bksp   |
+ * |--------+------+------+------+------+------|      |           |      |------+------+------+------+------+--------|
+ * |Ctrl/Esc|   A  |   S  |   D  |   F  |   G  |------|           |------|   H  |   J  |   K  |   L  | ;/mv |   '    |
+ * |--------+------+------+------+------+------|      |           |      |------+------+------+------+------+--------|
+ * | LShift |Z/Ctrl|   X  |   C  |   V  |   B  |      |           |      |   N  |   M  |   ,  |   .  |   /  |rsht/rtn|
+ * `--------+------+------+------+------+-------------'           `-------------+------+------+------+------+--------'
+ *   |      |      |  Alt | Gui  | Lower/Spc |                              | Raise/Spc| Gui  |  Alt |      |      |
+ *   `---------------------------------------'                               `-------------------------------------'
+ *                                        ,-------------.       ,---------------.
+ *                                        |      |      |       |      |        |
+ *                                 ,------|------|------|       |------+--------+------.
+ *                                 |      |      |      |       |      |        |      |
+ *                                 |AltShf|      |------|       |------|        |  Vim |
+ *                                 |      |      |      |       |      |        |      |
+ *                                 `--------------------'       `----------------------'
+ */
+// If it accepts an argument (i.e, is a function), it doesn't need KC_.
+// Otherwise, it needs KC_*
+[_CMD] = LAYOUT_ergodox(  // layer 0 : default
+        // left hand
+        X_____X,         X_____X,         X_____X,   X_____X,   X_____X,   X_____X,    X_____X,
+        X_____X,        X_____X,      VIM_W,  VIM_E,  X_____X,X_____X, X_____X,
+        VIM_ESC,        VIM_A,        VIM_S,  VIM_D,  X_____X,VIM_G,
+        VIM_SHIFT,      X_____X,      VIM_X,  VIM_C,  VIM_V,  VIM_B,   X_____X,
+           X_____X,  X_____X,      _______,   _______,  X_____X,
+                                              X_____X,  X_____X,
+                                                        X_____X,
+                                  _______,    X_____X,  X_____X,
+        // right hand
+             X_____X, X_____X,   X_____X,   X_____X,      X_____X,      X_____X,    X_____X,
+             X_____X, VIM_Y,  VIM_U,  VIM_I,     VIM_O,     VIM_P,   X_____X,
+                      VIM_H,  VIM_J,  VIM_K,     VIM_L,     X_____X, X_____X,
+             X_____X, X_____X,X_____X,VIM_COMMA, VIM_PERIOD,X_____X, VIM_SHIFT,
+                              X_____X,  _______,   _______,   X_____X, X_____X,
+             X_____X, X_____X,
+             X_____X,
+             X_____X, X_____X, TO(_QWERTY)
+    ),
 };
 
 
-// Runs just one time when the keyboard initializes.
-void matrix_init_user(void) {
 
-};
+#define SPACE_WAIT 100
+uint16_t rl_start_time = 0;
 
-// Runs constantly in the background, in a loop.
-void matrix_scan_user(void) {
 
-  uint8_t layer = biton32(layer_state);
+bool process_record_keymap(uint16_t keycode, keyrecord_t *record) {
+  if(rl_start_time && record->event.pressed) rl_start_time = 0;
+  switch(keycode) {
+    case LOWER:
+      if (record->event.pressed) {
+        rl_start_time = timer_read();
+        layer_on(_LOWER);
+      } else {
+        if(rl_start_time && timer_read() - rl_start_time < SPACE_WAIT) {
+          rl_start_time = 0;
+          register_code(KC_SPC);
+          unregister_code(KC_SPC);
+        }
+        layer_off(_LOWER);
+      }
+      return false;
+      break;
+    case RAISE:
+      if (record->event.pressed) {
+        rl_start_time = timer_read();
+        layer_on(_RAISE);
+      } else {
+        if(rl_start_time && timer_read() - rl_start_time < SPACE_WAIT) {
+          rl_start_time = 0;
+          register_code(KC_SPC);
+          unregister_code(KC_SPC);
+        }
+        layer_off(_RAISE);
+      }
+      return false;
+      break;
+  }
+  return true;
+}
 
+void set_state_leds(void) {
   ergodox_board_led_off();
   ergodox_right_led_1_off();
   ergodox_right_led_2_off();
   ergodox_right_led_3_off();
-  switch (layer) {
-    // TODO: Make this relevant to the ErgoDox EZ.
-    case SYMB:
+    switch (biton32(layer_state)) {
+    case _RAISE:
       ergodox_right_led_1_on();
       break;
-    case MDIA:
+    case _LOWER:
       ergodox_right_led_2_on();
       break;
-    default:
-      // none
+    case _MOVE:
+      ergodox_right_led_3_on();
       break;
-  }
+    case _CMD:
+      ergodox_right_led_1_on();
+      ergodox_right_led_2_on();
+      ergodox_right_led_3_on();
+      break;
+    default:
+      // all off
+      break;
 
-};
+  }
+}
