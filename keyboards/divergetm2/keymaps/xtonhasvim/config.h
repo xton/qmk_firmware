@@ -49,4 +49,7 @@
 // because I'm lazy and didn't case out the rgb support
 #define RGBLED_NUM 2
 
+#define BACKLIGHT_PIN B7
+#define BACKLIGHT_LEVELS 3
+
 #endif
