@@ -33,13 +33,13 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * |   `    |   1  |   2  |   3  |   4  |   5  |      |           |      |   6  |   7  |   8  |   9  |   0  | Bksp   |
  * |--------+------+------+------+------+-------------|           |------+------+------+------+------+------+--------|
  * | Tab    |   Q  |   W  |   E  |   R  |   T  |      |           |      |   Y  |   U  |   I  |   O  |   P  | Bksp   |
- * |--------+------+------+------+------+------| Esc  |           | VIM  |------+------+------+------+------+--------|
- * |  Ctrl  |   A  |   S  |   D  |   F  |   G  |------|           |------|   H  |   J  |   K  |   L  |  ;   |   '    |
  * |--------+------+------+------+------+------|      |           |      |------+------+------+------+------+--------|
- * | LShift |Z/Ctrl|   X  |   C  |   V  |   B  |      |           |      |   N  |   M  |   ,  |   .  |   /  |rsht/rtn|
+ * |  Ctrl  |   A  |   S  |   D  |   F  |   G  |------|           |------|   H  |   J  |   K  |   L  |  ;   |   '    |
+ * |--------+------+------+------+------+------|  ESC |           | VIM  |------+------+------+------+------+--------|
+ * | LShift |   Z  |   X  |   C  |   V  |   B  |      |           |      |   N  |   M  |   ,  |   .  |   /  |rsht/rtn|
  * `--------+------+------+------+------+-------------'           `-------------+------+------+------+------+--------'
- *   |AltShf|      |  Alt | Gui  | Lwer |                               | space | MOVE |      |      | MOVE |
- *   `----------------------------------'                               `-----------------------------------'
+ *   |AltShf| Move |  Alt | Gui  | Lwer |                                       | raise| GUI  | Alt  | Move | Vim  |
+ *   `----------------------------------'                                       `----------------------------------'
  *                                        ,-------------.       ,---------------.
  *                                        |      |      |       |      |        |
  *                                 ,------|------|------|       |------+--------+------.
@@ -56,10 +56,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_TAB,         KC_Q,         KC_W,   KC_E,   KC_R,   KC_T,   X_____X,
         KC_LCTL,        KC_A,         KC_S,   KC_D,   KC_F,   KC_G,
         KC_LSFT,        KC_Z,         KC_X,   KC_C,   KC_V,   KC_B,   KC_ESC,
-           LSFT(KC_LALT),  X_____X,      KC_LALT, KC_LGUI,  LOWER,
+           LSFT(KC_LALT),  MO(_MOVE),      KC_LALT, KC_LGUI,  LOWER,
                                               X_____X,  X_____X,
                                                         X_____X,
-                                  MO(_MOVE), X_____X, X_____X,
+                                  KC_SPACE, X_____X, X_____X,
 
 
              // right hand
@@ -67,7 +67,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
              X_____X, KC_Y,   KC_U,   KC_I,   KC_O,   KC_P,              KC_BSPC,
                       KC_H,   KC_J,   KC_K,   KC_L,   KC_SCLN, KC_QUOT,
              VIM_START, KC_N,   KC_M,   KC_COMM,KC_DOT, KC_SLSH,           RSFT_T(KC_ENT),
-                                  RAISE,  MO(_MOVE),X_____X,X_____X,  MO(_MOVE),
+                                  RAISE,KC_RGUI,KC_RALT,MO(_MOVE), VIM_START,
              X_____X, X_____X,
              X_____X,
              X_____X, VIM_START, KC_SPACE

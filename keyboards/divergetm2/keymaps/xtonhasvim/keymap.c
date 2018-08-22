@@ -64,7 +64,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   KC_TAB,  KC_Q,           KC_W,    KC_E,    KC_R,          KC_T,    KC_Y,    KC_U,          KC_I,    KC_O,    KC_P,              KC_BSPC, \
   LCTL_T(KC_ESC), KC_A, KC_S,    KC_D,    KC_F,          KC_G,    KC_H,    KC_J,          KC_K,    KC_L,    LT(_MOVE,KC_SCLN), KC_QUOT, \
   KC_LSFT, KC_Z,           KC_X,    KC_C,    KC_V,          KC_B,    KC_N,    KC_M,          KC_COMM, KC_DOT,  KC_SLSH,   RSFT_T(KC_ENT) , \
-  LSFT(KC_LALT), X_____X,  KC_LALT, KC_LGUI, LOWER,   KC_SPC,  KC_SPC, RAISE,   KC_SPC, KC_RGUI, X_____X, VIM_START \
+  LSFT(KC_LALT), MO(_MOVE),  KC_LALT, KC_LGUI, LOWER,   KC_SPC,  KC_SPC, RAISE,   KC_RGUI, KC_RALT, MO(_MOVE), VIM_START \
 ),
 
 /* Lower
@@ -128,7 +128,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   TO(_QWERTY), X_____X, X_____X, X_____X, X_____X, X_____X, KC_HOME, KC_PGDN, KC_PGUP, KC_END, X_____X, X_____X, \
   _______,     X_____X, LGUI(KC_LBRC), LGUI(LSFT(KC_LBRC)), LGUI(LSFT(KC_RBRC)), LGUI(KC_RBRC), KC_LEFT, KC_DOWN, KC_UP,   KC_RGHT, _______, X_____X, \
   _______,     X_____X, X_____X, X_____X, X_____X, X_____X, X_____X, X_____X, X_____X, X_____X, X_____X, _______, \
-  _______,     TO(_QWERTY), _______, _______, _______, X_____X, X_____X, _______, _______, _______, TO(_QWERTY), X_____X \
+  _______,     _______, _______, _______, _______, X_____X, X_____X, _______, _______, _______, _______, X_____X \
 ),
 
 /* mouse layer
