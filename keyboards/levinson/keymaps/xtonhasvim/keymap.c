@@ -152,6 +152,91 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 };
 
 
+
+#define C_RED 0xFF, 0x00, 0x00
+#define C_GRN 0x00, 0xFF, 0x00
+#define C_BLU 0x00, 0x00, 0xFF
+
+#define C_YAN 0x00, 0xFF, 0xFF
+#define C_PRP 0x7A, 0x00, 0xFF
+#define C_ORG 0xFF, 0x93, 0x00
+
+void rgbflag(uint8_t r, uint8_t g, uint8_t b, uint8_t rr, uint8_t gg, uint8_t bb) {
+  LED_TYPE *target_led = user_rgb_mode ? shadowed_led : led;
+  for (int i = 0; i < RGBLED_NUM; i++)  {
+    switch (i) {
+    case 10: case 11:
+      target_led[i].r = r;
+      target_led[i].g = g;
+      target_led[i].b = b;
+      break;
+    case 0: case 1:
+      target_led[i].r = rr;
+      target_led[i].g = gg;
+      target_led[i].b = bb;
+      break;
+    default:
+      target_led[i].r = 0;
+      target_led[i].g = 0;
+      target_led[i].b = 0;
+      break;
+    }
+  }
+  rgblight_set();
+}
+
+void set_state_leds(void) {
+  if (rgblight_get_mode() == 1) {
+    switch (biton32(layer_state)) {
+    case _RAISE:
+      rgbflag(C_BLU, C_GRN);
+      break;
+    case _LOWER:
+      rgbflag(C_BLU, C_RED);
+      break;
+    case _ADJUST:
+      rgbflag(C_BLU, C_PRP);
+      break;
+    case _MOVE:
+      rgbflag(C_RED, C_PRP);
+      break;
+    case _MOUSE:
+      rgbflag(C_RED, C_GRN);
+      break;
+    case _CMD:
+      switch(vstate) {
+        case VIM_V:
+        case VIM_VI:
+        case VIM_VS:
+          rgbflag(C_GRN, C_YAN);
+          break;
+        case VIM_C:
+        case VIM_CI:
+          rgbflag(C_GRN, C_ORG);
+          break;
+        case VIM_D:
+        case VIM_DI:
+          rgbflag(C_GRN, C_RED);
+          break;
+        case VIM_G:
+          rgbflag(C_GRN, C_BLU);
+          break;
+        case VIM_Y:
+          rgbflag(C_GRN, C_PRP);
+          break;
+        case VIM_START:
+        default:
+          rgbflag(C_GRN, C_GRN);
+          break;
+      }
+      break;
+    default: //  for any other layers, or the default layer
+      rgbflag(C_YAN, C_YAN);
+      break;
+    }
+  }
+}
+
 bool process_record_keymap(uint16_t keycode, keyrecord_t *record) {
   switch(keycode) {
     case LOWER:
