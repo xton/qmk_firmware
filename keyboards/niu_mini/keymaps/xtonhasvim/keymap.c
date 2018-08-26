@@ -16,6 +16,7 @@
 
 #include QMK_KEYBOARD_H
 #include "xtonhasvim.h"
+#include "fancylighting.h"
 
 /************************************
  * states

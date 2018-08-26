@@ -61,19 +61,7 @@ enum xtonhasvim_keycodes {
 // NOTE: YOU MUST DEFINE THIS
 extern uint8_t vim_cmd_layer(void);
 
-enum xtonhasvim_rgbmodes {
-  BREATH_FIRE = 1,
-  FADE_BACK
-};
-
 extern uint16_t vstate;
 
-#ifdef RGBLIGHT_ENABLE
-
-extern uint8_t user_rgb_mode;
-extern LED_TYPE shadowed_led[];
-void keyboard_has_heat(void);
-#endif
-extern float keyboard_heat;
 
 #endif
