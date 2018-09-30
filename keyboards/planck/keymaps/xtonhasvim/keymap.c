@@ -1,4 +1,4 @@
- /* Copyright 2015-2017 Christon DeWan
+/* Copyright 2018 Christon DeWan
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,10 @@
 
 #include QMK_KEYBOARD_H
 #include "xtonhasvim.h"
-#include "fancylighting.h"
+#include "action_layer.h"
+#include "muse.h"
+
+extern keymap_config_t keymap_config;
 
 /************************************
  * states
@@ -34,9 +37,6 @@ enum layers {
 
 extern uint8_t vim_cmd_layer(void) { return _CMD; }
 
-/************************************
- * keymaps!
- ************************************/
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
@@ -54,12 +54,13 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * - Ctrl acts as Esc when tapped.
  * - Holding ; switches to movement layer.
  */
-[_QWERTY] = LAYOUT_ortho_4x12( \
-  KC_TAB,         KC_Q,      KC_W,    KC_E,    KC_R,         KC_T,    KC_Y,   KC_U,       KC_I,    KC_O,    KC_P,              KC_BSPC, \
-  LCTL_T(KC_ESC), KC_A,      KC_S,    KC_D,    KC_F,         KC_G,    KC_H,   KC_J,       KC_K,    KC_L,    LT(_MOVE,KC_SCLN), KC_QUOT, \
-  KC_LSFT,        KC_Z,      KC_X,    KC_C,    KC_V,         KC_B,    KC_N,   KC_M,       KC_COMM, KC_DOT,  KC_SLSH,           RSFT_T(KC_ENT) , \
-  LSFT(KC_LALT),  MO(_MOVE), KC_LALT, KC_LGUI, MO(_LOWER),   KC_SPC,  KC_SPC, MO(_RAISE), KC_RGUI, KC_RALT, MO(_MOVE),         VIM_START \
+[_QWERTY] = LAYOUT_planck_grid(
+    KC_TAB,         KC_Q,      KC_W,    KC_E,    KC_R,         KC_T,    KC_Y,   KC_U,       KC_I,    KC_O,    KC_P,              KC_BSPC, \
+    LCTL_T(KC_ESC), KC_A,      KC_S,    KC_D,    KC_F,         KC_G,    KC_H,   KC_J,       KC_K,    KC_L,    LT(_MOVE,KC_SCLN), KC_QUOT, \
+    KC_LSFT,        KC_Z,      KC_X,    KC_C,    KC_V,         KC_B,    KC_N,   KC_M,       KC_COMM, KC_DOT,  KC_SLSH,           RSFT_T(KC_ENT) , \
+    LSFT(KC_LALT),  MO(_MOVE), KC_LALT, KC_LGUI, MO(_LOWER),   KC_SPC,  KC_SPC, MO(_RAISE), KC_RGUI, KC_RALT, MO(_MOVE),         VIM_START \
 ),
+
 
 /* Lower
  * ,-----------------------------------------------------------------------------------.
@@ -72,10 +73,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * |      | Bail |      |      |      |      |      |Raise |      |      | Bail |      |
  * `-----------------------------------------------------------------------------------'
  */
-[_LOWER] = LAYOUT_ortho_4x12( \
+[_LOWER] = LAYOUT_planck_grid( \
   KC_TILD, KC_F1,       KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,   KC_UNDS,    KC_PLUS, KC_LCBR, KC_RCBR,     KC_BSPC, \
   KC_DEL,  KC_EXLM,     KC_AT,   KC_HASH, KC_DLR,  KC_PERC, KC_CIRC, KC_AMPR,    KC_ASTR, KC_LPRN, KC_RPRN,     KC_PIPE, \
-  _______, KC_F7,       KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,  X_____X,    X_____X, X_____X, X_____X,     FIREY_RETURN, \
+  _______, KC_F7,       KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,  X_____X,    X_____X, X_____X, X_____X,     KC_ENT, \
   RESET,   TO(_QWERTY), _______, _______, _______, _______, _______, MO(_RAISE), _______, _______, TO(_QWERTY), X_____X \
 ),
 
@@ -90,53 +91,43 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * |      | Bail |      |      |Lower |      |      |      |      |      | Bail |      |
  * `-----------------------------------------------------------------------------------'
  */
-[_RAISE] = LAYOUT_ortho_4x12( \
+[_RAISE] = LAYOUT_planck_grid( \
   KC_GRV,  X_____X,     X_____X, X_____X, X_____X,    X_____X, X_____X, KC_MINS, KC_EQL,  KC_LBRC, KC_RBRC,     KC_BSPC, \
   KC_DEL,  KC_1,        KC_2,    KC_3,    KC_4,       KC_5,    KC_6,    KC_7,    KC_8,    KC_9,    KC_0,        KC_BSLS, \
-  _______, X_____X,     X_____X, X_____X, X_____X,    X_____X, X_____X, X_____X, X_____X, X_____X, X_____X,     FIREY_RETURN, \
+  _______, X_____X,     X_____X, X_____X, X_____X,    X_____X, X_____X, X_____X, X_____X, X_____X, X_____X,     KC_ENT, \
   X_____X, TO(_QWERTY), _______, _______, MO(_LOWER), _______, _______, _______, _______, _______, TO(_QWERTY), RESET \
 ),
 
-
 /* Adjust (Lower + Raise)
- * ,-------------------------------------------------------------------------------------.
- * |BL Raise|      |      |      |      |      |      |      |      |      |      |      |
- * |--------+------+------+------+------+-------------+------+------+------+------+------|
- * |BL Lower|      |      |      |      |      |      |      |      |      |      |      |
- * |--------+------+------+------+------+------|------+------+------+------+------+------|
- * |BL STEP |      |      |      |      |      |      | Next | Vol- | Vol+ | Play |      |
- * |--------+------+------+------+------+------+------+------+------+------+------+------|
- * |Backlite| Bail |      |      |      |      |      |      |      |      | Bail |      |
- * `-------------------------------------------------------------------------------------'
+ * ,-----------------------------------------------------------------------------------.
+ * |      | Reset|      |      |      |      |      |      |      |      |      |  Del |
+ * |------+------+------+------+------+-------------+------+------+------+------+------|
+ * |      |      |      |Aud on|Audoff|AGnorm|AGswap|Qwerty|Colemk|Dvorak|Plover|      |
+ * |------+------+------+------+------+------|------+------+------+------+------+------|
+ * |      |Voice-|Voice+|Mus on|Musoff|MIDIon|MIDIof|      |      |      |      |      |
+ * |------+------+------+------+------+------+------+------+------+------+------+------|
+ * |      |      |      |      |      |             |      |      |      |      |      |
+ * `-----------------------------------------------------------------------------------'
  */
-[_ADJUST] = LAYOUT_ortho_4x12( \
-  BL_INC,  X_____X,    X_____X, X_____X, X_____X, X_____X, X_____X, X_____X, X_____X, X_____X, X_____X,     RGB_MODE_PLAIN, \
-  BL_DEC,  X_____X,    X_____X, X_____X, X_____X, X_____X, X_____X, X_____X, X_____X, X_____X, X_____X,     RGB_MODE_REVERSE, \
-  BL_STEP, X_____X,    X_____X, X_____X, X_____X, X_____X, X_____X, KC_MNXT, KC_VOLD, KC_VOLU, KC_MPLY,     RGB_MODE_FORWARD, \
-  BL_TOGG, TO(_MOUSE), _______, _______, _______, _______, _______, _______, _______, _______, TO(_QWERTY), RGB_TOG \
+[_ADJUST] = LAYOUT_planck_grid(
+    X_____X, RESET,   DEBUG,    RGB_TOG, RGB_MOD, RGB_HUI, RGB_HUD, RGB_SAI, RGB_SAD, RGB_VAI, RGB_VAD, X_____X ,
+    X_____X, X_____X, MU_MOD,  AU_ON,   AU_OFF,  X_____X, KC_MPRV, KC_VOLD, KC_VOLU, KC_MNXT, KC_MPLY,  X_____X,
+    X_____X, MUV_DE,  MUV_IN,  MU_ON,   MU_OFF,  MI_ON,   MI_OFF,  TERM_ON, TERM_OFF, X_____X, X_____X, X_____X,
+    _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______
 ),
 
-
 /* movement layer (hold semicolon) */
-[_MOVE] = LAYOUT_ortho_4x12( \
+[_MOVE] = LAYOUT_planck_grid( \
   TO(_QWERTY), X_____X, X_____X,       X_____X,             X_____X,             X_____X,       KC_HOME, KC_PGDN, KC_PGUP, KC_END,  X_____X, X_____X, \
   _______,     X_____X, LGUI(KC_LBRC), LGUI(LSFT(KC_LBRC)), LGUI(LSFT(KC_RBRC)), LGUI(KC_RBRC), KC_LEFT, KC_DOWN, KC_UP,   KC_RGHT, _______, X_____X, \
   _______,     X_____X, X_____X,       X_____X,             X_____X,             X_____X,       X_____X, X_____X, X_____X, X_____X, X_____X, _______, \
   _______,     _______, _______,       _______,             _______,             X_____X,       X_____X, _______, _______, _______, _______, X_____X \
 ),
 
-/* mouse layer
- */
-[_MOUSE] = LAYOUT_ortho_4x12( \
-  TO(_QWERTY), X_____X,     X_____X,    KC_MS_UP,   X_____X,     X_____X, KC_MS_WH_LEFT, KC_MS_WH_DOWN, KC_MS_WH_UP, KC_MS_WH_RIGHT, X_____X,     X_____X, \
-  _______,     X_____X,     KC_MS_LEFT, KC_MS_DOWN, KC_MS_RIGHT, X_____X, X_____X,       KC_MS_BTN1,    KC_MS_BTN2,  KC_MS_BTN3,     X_____X,     X_____X, \
-  _______,     X_____X,     X_____X,    X_____X,    X_____X,     X_____X, X_____X,       X_____X,       X_____X,     X_____X,        X_____X,     _______, \
-  _______,     TO(_QWERTY), _______,    _______,    _______,     X_____X, X_____X,       _______,       _______,     _______,        TO(_QWERTY), X_____X \
-),
 
 /* vim command layer.
  */
-[_CMD] = LAYOUT_ortho_4x12( \
+[_CMD] = LAYOUT_planck_grid( \
   X_____X,   X_____X,     VIM_W,   VIM_E,   X_____X, X_____X, VIM_Y,   VIM_U,   VIM_I,     VIM_O,      VIM_P,       X_____X, \
   VIM_ESC,   VIM_A,       VIM_S,   VIM_D,   X_____X, VIM_G,   VIM_H,   VIM_J,   VIM_K,     VIM_L,      X_____X,     X_____X, \
   VIM_SHIFT, X_____X,     VIM_X,   VIM_C,   VIM_V,   VIM_B,   X_____X, X_____X, VIM_COMMA, VIM_PERIOD, X_____X,     VIM_SHIFT, \
@@ -145,92 +136,55 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 };
 
-
-
-#define C_RED 0xFF, 0x00, 0x00
-#define C_GRN 0x00, 0xFF, 0x00
-#define C_BLU 0x00, 0x00, 0xFF
-
-#define C_YAN 0x00, 0xFF, 0xFF
-#define C_PRP 0x7A, 0x00, 0xFF
-#define C_ORG 0xFF, 0x93, 0x00
-
-void rgbflag(uint8_t r, uint8_t g, uint8_t b, uint8_t rr, uint8_t gg, uint8_t bb) {
-  LED_TYPE *target_led = user_rgb_mode ? shadowed_led : led;
-  for (int i = 0; i < RGBLED_NUM; i++)  {
-    switch (i) {
-    case 10: case 11:
-      target_led[i].r = r;
-      target_led[i].g = g;
-      target_led[i].b = b;
-      break;
-    case 0: case 1:
-      target_led[i].r = rr;
-      target_led[i].g = gg;
-      target_led[i].b = bb;
-      break;
-    default:
-      target_led[i].r = 0;
-      target_led[i].g = 0;
-      target_led[i].b = 0;
-      break;
-    }
-  }
-  rgblight_set();
-}
-
-void set_state_leds(void) {
-  if (rgblight_get_mode() == 1) {
-    switch (biton32(layer_state)) {
-    case _RAISE:
-      rgbflag(C_BLU, C_GRN);
-      break;
-    case _LOWER:
-      rgbflag(C_BLU, C_RED);
-      break;
-    case _ADJUST:
-      rgbflag(C_BLU, C_PRP);
-      break;
-    case _MOVE:
-      rgbflag(C_RED, C_PRP);
-      break;
-    case _MOUSE:
-      rgbflag(C_RED, C_GRN);
-      break;
-    case _CMD:
-      switch(vstate) {
-        case VIM_V:
-        case VIM_VI:
-        case VIM_VS:
-          rgbflag(C_GRN, C_YAN);
-          break;
-        case VIM_C:
-        case VIM_CI:
-          rgbflag(C_GRN, C_ORG);
-          break;
-        case VIM_D:
-        case VIM_DI:
-          rgbflag(C_GRN, C_RED);
-          break;
-        case VIM_G:
-          rgbflag(C_GRN, C_BLU);
-          break;
-        case VIM_Y:
-          rgbflag(C_GRN, C_PRP);
-          break;
-        case VIM_START:
-        default:
-          rgbflag(C_GRN, C_GRN);
-          break;
-      }
-      break;
-    default: //  for any other layers, or the default layer
-      rgbflag(C_YAN, C_YAN);
-      break;
-    }
-  }
-}
-
 uint32_t layer_state_set_user(uint32_t state) {
-  return update_tri_layer_state(state, _RAISE, _LOWER, _ADJUST);
+  return update_tri_layer_state(state, _LOWER, _RAISE, _ADJUST);
+}
+
+
+bool muse_mode = false;
+uint8_t last_muse_note = 0;
+uint16_t muse_counter = 0;
+uint8_t muse_offset = 70;
+uint16_t muse_tempo = 50;
+
+void encoder_update(bool clockwise) {
+  if (muse_mode) {
+    if (IS_LAYER_ON(_RAISE)) {
+      if (clockwise) {
+        muse_offset++;
+      } else {
+        muse_offset--;
+      }
+    } else {
+      if (clockwise) {
+        muse_tempo+=1;
+      } else {
+        muse_tempo-=1;
+      }
+    }
+  } else {
+    if (clockwise) {
+      register_code(KC_PGDN);
+      unregister_code(KC_PGDN);
+    } else {
+      register_code(KC_PGUP);
+      unregister_code(KC_PGUP);
+    }
+  }
+}
+
+void matrix_scan_user(void) {
+  #ifdef AUDIO_ENABLE
+    if (muse_mode) {
+      if (muse_counter == 0) {
+        uint8_t muse_note = muse_offset + SCALE[muse_clock_pulse()];
+        if (muse_note != last_muse_note) {
+          stop_note(compute_freq_for_midi_note(last_muse_note));
+          play_note(compute_freq_for_midi_note(muse_note), 0xF);
+          last_muse_note = muse_note;
+        }
+      }
+      muse_counter = (muse_counter + 1) % muse_tempo;
+    }
+  #endif
 }
