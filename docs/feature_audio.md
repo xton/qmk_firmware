@@ -170,7 +170,7 @@ This is still a WIP, but check out `quantum/keymap_midi.c` to see what's happeni
 |`MU_TOG`        |         |Toggles Music Mode                |
 |`MU_MOD`        |         |Cycles through the music modes    |
 
-<!-- FIXME: this formatting needs work
+<!-- FIXME: this formatting needs work -->
 
 ## Audio
 

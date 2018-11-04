@@ -35,4 +35,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // #define EE_HANDS
 #define PERMISSIVE_HOLD
 
+#define C6_AUDIO
+#define AUDIO_CLICKY
+
 #endif
