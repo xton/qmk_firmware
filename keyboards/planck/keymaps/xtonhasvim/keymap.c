@@ -18,6 +18,8 @@
 #include "xtonhasvim.h"
 #include "action_layer.h"
 #include "muse.h"
+#include "hal.h"
+#include "hal_pal.h"
 
 extern keymap_config_t keymap_config;
 
@@ -58,7 +60,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     KC_TAB,         KC_Q,      KC_W,    KC_E,    KC_R,         KC_T,    KC_Y,   KC_U,       KC_I,    KC_O,    KC_P,              KC_BSPC, \
     LCTL_T(KC_ESC), KC_A,      KC_S,    KC_D,    KC_F,         KC_G,    KC_H,   KC_J,       KC_K,    KC_L,    LT(_MOVE,KC_SCLN), KC_QUOT, \
     KC_LSFT,        KC_Z,      KC_X,    KC_C,    KC_V,         KC_B,    KC_N,   KC_M,       KC_COMM, KC_DOT,  KC_SLSH,           RSFT_T(KC_ENT) , \
-    LSFT(KC_LALT),  MO(_MOVE), KC_LALT, KC_LGUI, MO(_LOWER),   KC_SPC,  KC_SPC, MO(_RAISE), KC_RGUI, KC_RALT, MO(_MOVE),         VIM_START \
+    LSFT(KC_LALT),  MO(_MOVE), KC_LALT, KC_LGUI, MO(_LOWER),   MO(_MOVE),  KC_SPC, MO(_RAISE), KC_RGUI, KC_RALT, MO(_MOVE),         VIM_START \
 ),
 
 
@@ -173,7 +175,31 @@ void encoder_update(bool clockwise) {
   }
 }
 
+#define TAP(kc) do { register_code(kc); unregister_code(kc); } while (0)
+#define pin_count 4
+uint32_t pins_were[pin_count] = { 0, 0, 0, 0 };
+uint32_t pins[pin_count] = { B8, B3, B4, B5 };
+uint32_t pins_kc[pin_count] = { KC_UP, KC_DOWN, KC_LEFT, KC_RIGHT };
+#define mouse_step 20
+
+uint32_t did_happen = 0;
+
+void okay_yeah(void) {
+	did_happen += 1;
+}
+
+void matrix_init_user() {
+	for(int i = 0; i < pin_count; i++){
+		setPinInputHigh(pins[i]);
+	}
+	palLineEnableEventI(PAL_LINE(GPIOB, 8), PAL_EVENT_MODE_BOTH_EDGES, did_happen);
+}
+
 void matrix_scan_user(void) {
+  if(did_happen){
+	xprintf("got to %d\n");
+	did_happen = 0;
+  }
   #ifdef AUDIO_ENABLE
     if (muse_mode) {
       if (muse_counter == 0) {
@@ -187,4 +213,12 @@ void matrix_scan_user(void) {
       muse_counter = (muse_counter + 1) % muse_tempo;
     }
   #endif
+	for(int i = 0; i < pin_count; i++){
+		uint16_t on = readPin(pins[i]);
+		if(on != pins_were[i]) {
+			TAP(pins_kc[i]);
+		}
+		pins_were[i] = on;
+
+	}
 }
