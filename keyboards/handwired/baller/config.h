@@ -30,10 +30,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 /* key matrix size */
 #define MATRIX_ROWS 1
-#define MATRIX_COLS 1
+#define MATRIX_COLS 4
 
-#define MATRIX_COL_PINS {  B0 }
-#define MATRIX_ROW_PINS {  D0 }
+#define MATRIX_COL_PINS {  D1, D0, D4, D6}
+/* uint16_t pins[pin_count] = { D1, D0, D4, D6 }; */
+#define MATRIX_ROW_PINS {  D2 }
 #define UNUSED_PINS
 
 /* define if matrix has ghost */

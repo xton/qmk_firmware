@@ -1,12 +1,14 @@
 #include "baller.h"
 #include <print.h>
 #include <mousekey.h>
+#include <util/delay.h>
+#define delay(us)  _delay_us(us) 
 
 /* static report_mouse_t mouse_report = {}; */
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     /* {{ KC_A, KC_B, KC_C, KC_D }} */
-    {{ KC_MS_BTN1 }}
+    {{ KC_NO, KC_NO, KC_NO, KC_NO }}
 };
 
 /* bool process_record_user(uint16_t keycode, keyrecord_t *record) { */
@@ -22,14 +24,24 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 #define pin_count 4
 uint16_t pins_were[pin_count] = { 0, 0, 0, 0 };
-uint16_t pins[pin_count] = { B8, B3, B4, B5 };
+uint16_t pins[pin_count] = { D1, D0, D4, C6 };
 uint16_t pins_kc[pin_count] = { KC_UP, KC_DOWN, KC_LEFT, KC_RIGHT };
 #define mouse_step 20
+#define ipin_count 2
+uint16_t ipins[ipin_count] = { B5, B7 };
+uint16_t ipins_were[ipin_count] = { B5, B7 };
+uint32_t deltas[ipin_count] = { 0, 0};
 
 void matrix_init_user() {
 	for(int i = 0; i < pin_count; i++){
 		setPinInputHigh(pins[i]);
 	}
+	// enable interrupts
+	SREG |= (0x1 << 7);
+	// mask out just B5, B7
+	PCMSK0 |= ((1 << PCINT7) | (1 << PCINT5)); 
+	// turn on PC int
+	PCICR |= (1 << PCIE0);
 
 }
 #define TAP(kc) do { register_code(kc); unregister_code(kc); } while (0)
@@ -65,10 +77,29 @@ void matrix_scan_user() {
 			mouse_report.y = 0;
 			host_mouse_send(&mouse_report);
 #else 
-			TAP(pins_kc[i]);
+			xprintf("YAY: %d\n",i);
+			xprintf("deltas: %d %d\n",deltas[0], deltas[1]);
+			/* TAP(pins_kc[i]); */
 #endif
 		}
 		pins_were[i] = on;
 
 	}
+	/* xprintf("%d,%d,%d,%d\n",pins[0],pins[1],pins[2],pins[3]); */
+	/* delay(1000); */
+}
+
+
+
+ISR(PCINT0_vect){
+  for(int i = 0; i < ipin_count; i++){ 
+	uint16_t on = readPin(ipins[i]);
+	if(on != ipins_were[i]) {
+		  xprintf("OH SHIT - %d -> %d\n",i, deltas[i]);
+		deltas[i]++;	
+	}
+	ipins_were[i] = on;
+
+  }
+
 }
