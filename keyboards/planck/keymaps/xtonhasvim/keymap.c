@@ -21,6 +21,7 @@
 #include "hal.h"
 #include "hal_pal.h"
 
+
 extern keymap_config_t keymap_config;
 
 /************************************
@@ -188,11 +189,34 @@ void okay_yeah(void) {
 	did_happen += 1;
 }
 
+// linker should place this where it needs to go...
+void EIC_2_Handler(void){ 
+	did_happen += 1;
+	// assume that's what called us. clear it....
+	EXTI->PR &= ~EXTI_PR_PR2;
+}
+
 void matrix_init_user() {
 	for(int i = 0; i < pin_count; i++){
 		setPinInputHigh(pins[i]);
 	}
-	palLineEnableEventI(PAL_LINE(GPIOB, 8), PAL_EVENT_MODE_BOTH_EDGES, did_happen);
+	palLineEnableEventI(PAL_LINE(GPIOB, 4), PAL_EVENT_MODE_BOTH_EDGES, okay_yeah);
+
+	// map line 2 to wire B4
+	SYSCFG_EXTICR1_EXTI2 |= SYSCFG_EXTICR1_EXTI2_PB;
+	// enable rising edge for line 2
+	EXTI_RTSR |= EXTI_RTSR1_RT2;
+	// and falling edge
+	EXTI_FTSR |= EXTI_FTSR1_FT2;
+	// enable this interrupt
+	EXTI_IMR |= EXTI_IMR1_IM2;
+
+	// copypasta
+	NVIC_DisableIRQ(EXTI0_IRQn);
+	NVIC_ClearPendingIRQ(EXTI0_IRQn);
+	NVIC_SetPriority(EXTI0_IRQn, 0);
+	NVIC_EnableIRQ(EXTI0_IRQn);
+
 }
 
 void matrix_scan_user(void) {

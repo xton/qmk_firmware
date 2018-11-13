@@ -128,7 +128,7 @@ ISR(PCINT0_vect){
   for(int i = 0; i < ipin_count; i++){ 
 	uint16_t on = readPin(ipins[i]);
 	if(on != ipins_were[i]) {
-		  xprintf("OH SHIT - %d -> %d\n",i, deltas[i]);
+		  /* xprintf("OH SHIT - %d -> %d\n",i, deltas[i]); */
 		deltas[i]++;	
 		has_moved=true;
 	}
