@@ -200,16 +200,17 @@ void matrix_init_user() {
 	for(int i = 0; i < pin_count; i++){
 		setPinInputHigh(pins[i]);
 	}
+	// this doesn't work
 	palLineEnableEventI(PAL_LINE(GPIOB, 4), PAL_EVENT_MODE_BOTH_EDGES, okay_yeah);
 
 	// map line 2 to wire B4
-	SYSCFG_EXTICR1_EXTI2 |= SYSCFG_EXTICR1_EXTI2_PB;
+	SYSCFG->EXTICR[2] |= SYSCFG_EXTICR1_EXTI3_PB;
 	// enable rising edge for line 2
-	EXTI_RTSR |= EXTI_RTSR1_RT2;
+	EXTI->RTSR |= EXTI_RTSR_TR3;
 	// and falling edge
-	EXTI_FTSR |= EXTI_FTSR1_FT2;
+	EXTI->FTSR |= EXTI_FTSR_TR3;
 	// enable this interrupt
-	EXTI_IMR |= EXTI_IMR1_IM2;
+	EXTI->IMR |= EXTI_IMR_MR3;
 
 	// copypasta
 	NVIC_DisableIRQ(EXTI0_IRQn);
