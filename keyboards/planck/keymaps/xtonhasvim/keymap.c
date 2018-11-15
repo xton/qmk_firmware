@@ -20,6 +20,7 @@
 #include "muse.h"
 #include "hal.h"
 #include "hal_pal.h"
+#include "stm32_registry.h"
 
 
 extern keymap_config_t keymap_config;
@@ -191,6 +192,13 @@ void okay_yeah(void) {
 
 // linker should place this where it needs to go...
 void EIC_3_Handler(void){ 
+	did_happen += 1;
+	// assume that's what called us. clear it....
+	EXTI->PR &= ~EXTI_PR_PR3;
+}
+
+ISR(STM32_EXTI_LINE0_HANDLER) {
+	xprintf("fuck yeah")
 	did_happen += 1;
 	// assume that's what called us. clear it....
 	EXTI->PR &= ~EXTI_PR_PR3;
