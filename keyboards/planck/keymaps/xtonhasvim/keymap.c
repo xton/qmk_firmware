@@ -217,11 +217,12 @@ void matrix_init_user() {
 	}
 	// this doesn't work
 	/* palLineEnableEventI(PAL_LINE(GPIOB, 4), PAL_EVENT_MODE_BOTH_EDGES, okay_yeah); */
-	// enable input on this pin
+	
+	// enable input on this pin, required to receive interrupts
 	palSetPadMode(GPIOB, 3, PAL_MODE_INPUT_PULLUP);
 
 	// map line 2 to wire B3
-	SYSCFG->EXTICR[1] |= SYSCFG_EXTICR1_EXTI3_PB;
+	SYSCFG->EXTICR[0] |= SYSCFG_EXTICR1_EXTI3_PB;
 	// enable rising edge for line 2
 	EXTI->RTSR |= EXTI_RTSR_TR3;
 	// and falling edge
@@ -230,10 +231,10 @@ void matrix_init_user() {
 	EXTI->IMR |= EXTI_IMR_MR3;
 
 	// copypasta
-	NVIC_DisableIRQ(EXTI1_IRQn);
-	NVIC_ClearPendingIRQ(EXTI1_IRQn);
-	NVIC_SetPriority(EXTI1_IRQn, 0);
-	NVIC_EnableIRQ(EXTI1_IRQn);
+	NVIC_DisableIRQ(EXTI0_IRQn);
+	NVIC_ClearPendingIRQ(EXTI0_IRQn);
+	NVIC_SetPriority(EXTI0_IRQn, 0);
+	NVIC_EnableIRQ(EXTI0_IRQn);
 
 }
 
