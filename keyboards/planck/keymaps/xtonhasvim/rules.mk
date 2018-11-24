@@ -1,1 +1,3 @@
 SRC += muse.c
+
+CFLAGS += -DHAL_USE_EXT=TRUE

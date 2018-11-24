@@ -191,18 +191,24 @@ void okay_yeah(void) {
 }
 
 // linker should place this where it needs to go...
-void EIC_3_Handler(void){ 
-	did_happen += 1;
-	// assume that's what called us. clear it....
-	EXTI->PR &= ~EXTI_PR_PR3;
-}
+/* void EIC_3_Handler(void){ */ 
+/* 	did_happen += 1; */
+/* 	// assume that's what called us. clear it.... */
+/* 	EXTI->PR &= ~EXTI_PR_PR3; */
+/* } */
 
-ISR(STM32_EXTI_LINE0_HANDLER) {
-	xprintf("fuck yeah")
-	did_happen += 1;
-	// assume that's what called us. clear it....
-	EXTI->PR &= ~EXTI_PR_PR3;
-}
+
+/* #define xstr(s) str(s) */
+/* #define str(s) #s */
+/* #define foo 4 */
+/* #pragma message xstr(EXTD1) */
+
+/* ISR(STM32_EXTI_LINE0_HANDLER) { */
+/* 	xprintf("fuck yeah") */
+/* 	did_happen += 1; */
+/* 	// assume that's what called us. clear it.... */
+/* 	EXTI->PR &= ~EXTI_PR_PR3; */
+/* } */
 /* ISR(Vector5C){ */ 
 /* 	did_happen += 2; */
 /* 	// assume that's what called us. clear it.... */
@@ -219,36 +225,64 @@ ISR(STM32_EXTI_LINE0_HANDLER) {
 /* 	EXTI->PR &= ~EXTI_PR_PR3; */
 /* } */
 
+EXTConfig extConfig = {{{0}}};
+
+void gotta_cb(EXTDriver *extp, expchannel_t channel) {
+	print("uh, yeah");
+	xprintf("woo yeah: %d\n", channel);
+	did_happen += 1;
+}
+
+uint32_t ext_int_lines[] = { 8, 3, 4, 5 };
+#define ext_int_lines_count sizeof(ext_int_lines) / sizeof(uint32_t)
+
 void matrix_init_user() {
-	for(int i = 0; i < pin_count; i++){
-		setPinInputHigh(pins[i]);
-	}
+	/* for(int i = 0; i < pin_count; i++){ */
+	/* 	setPinInputHigh(pins[i]); */
+	/* } */
 	// this doesn't work
 	/* palLineEnableEventI(PAL_LINE(GPIOB, 4), PAL_EVENT_MODE_BOTH_EDGES, okay_yeah); */
 	
 	// enable input on this pin, required to receive interrupts
-	palSetPadMode(GPIOB, 3, PAL_MODE_INPUT_PULLUP);
+	/* palSetPadMode(GPIOB, 3, PAL_MODE_INPUT_PULLUP); */
 
-	// map line 2 to wire B3
-	SYSCFG->EXTICR[0] |= SYSCFG_EXTICR1_EXTI3_PB;
-	// enable rising edge for line 2
-	EXTI->RTSR |= EXTI_RTSR_TR3;
-	// and falling edge
-	EXTI->FTSR |= EXTI_FTSR_TR3;
-	// enable this interrupt
-	EXTI->IMR |= EXTI_IMR_MR3;
+	osalSysLock();
 
-	// copypasta
-	NVIC_DisableIRQ(EXTI0_IRQn);
-	NVIC_ClearPendingIRQ(EXTI0_IRQn);
-	NVIC_SetPriority(EXTI0_IRQn, 0);
-	NVIC_EnableIRQ(EXTI0_IRQn);
+	/* // map line 2 to wire B3 */
+	/* SYSCFG->EXTICR[0] |= SYSCFG_EXTICR1_EXTI3_PB; */
+	palSetGroupMode(GPIOB, PAL_PORT_BIT(8), 0, PAL_MODE_INPUT);
+	palSetGroupMode(GPIOB, PAL_PORT_BIT(3), 0, PAL_MODE_INPUT);
+	palSetGroupMode(GPIOB, PAL_PORT_BIT(4), 0, PAL_MODE_INPUT);
+	palSetGroupMode(GPIOB, PAL_PORT_BIT(5), 0, PAL_MODE_INPUT);
+
+	for(int i = 0; i < ext_int_lines_count; i++){
+		extConfig.channels[ext_int_lines[i]].mode = EXT_CH_MODE_BOTH_EDGES | EXT_CH_MODE_AUTOSTART;
+		extConfig.channels[ext_int_lines[i]].cb = gotta_cb;
+	}
+
+
+	extStart(&EXTD1, &extConfig);
+
+	osalSysUnlock();
+
+	/* // enable rising edge for line 2 */
+	/* EXTI->RTSR |= EXTI_RTSR_TR3; */
+	/* // and falling edge */
+	/* EXTI->FTSR |= EXTI_FTSR_TR3; */
+	/* // enable this interrupt */
+	/* EXTI->IMR |= EXTI_IMR_MR3; */
+
+	/* // copypasta */
+	/* NVIC_DisableIRQ(EXTI0_IRQn); */
+	/* NVIC_ClearPendingIRQ(EXTI0_IRQn); */
+	/* NVIC_SetPriority(EXTI0_IRQn, 0); */
+	/* NVIC_EnableIRQ(EXTI0_IRQn); */
 
 }
 
 void matrix_scan_user(void) {
   if(did_happen){
-	xprintf("got to %d\n");
+	xprintf("got to %d\n", did_happen);
 	did_happen = 0;
   }
   #ifdef AUDIO_ENABLE
@@ -265,11 +299,11 @@ void matrix_scan_user(void) {
     }
   #endif
 	for(int i = 0; i < pin_count; i++){
-		uint16_t on = readPin(pins[i]);
-		if(on != pins_were[i]) {
-			TAP(pins_kc[i]);
-		}
-		pins_were[i] = on;
+		/* uint16_t on = readPin(pins[i]); */
+		/* if(on != pins_were[i]) { */
+		/* 	TAP(pins_kc[i]); */
+		/* } */
+		/* pins_were[i] = on; */
 
 	}
 }
