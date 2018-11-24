@@ -191,41 +191,6 @@ void okay_yeah(void) {
 	did_happen += 1;
 }
 
-// linker should place this where it needs to go...
-/* void EIC_3_Handler(void){ */ 
-/* 	did_happen += 1; */
-/* 	// assume that's what called us. clear it.... */
-/* 	EXTI->PR &= ~EXTI_PR_PR3; */
-/* } */
-
-
-/* #define xstr(s) str(s) */
-/* #define str(s) #s */
-/* #define foo 4 */
-/* #pragma message xstr(EXTD1) */
-
-/* ISR(STM32_EXTI_LINE0_HANDLER) { */
-/* 	xprintf("fuck yeah") */
-/* 	did_happen += 1; */
-/* 	// assume that's what called us. clear it.... */
-/* 	EXTI->PR &= ~EXTI_PR_PR3; */
-/* } */
-/* ISR(Vector5C){ */ 
-/* 	did_happen += 2; */
-/* 	// assume that's what called us. clear it.... */
-/* 	EXTI->PR &= ~EXTI_PR_PR3; */
-/* } */
-/* ISR(Vector58){ */ 
-/* 	did_happen += 4; */
-/* 	// assume that's what called us. clear it.... */
-/* 	EXTI->PR &= ~EXTI_PR_PR3; */
-/* } */
-/* ISR(Vector60){ */ 
-/* 	did_happen += 4; */
-/* 	// assume that's what called us. clear it.... */
-/* 	EXTI->PR &= ~EXTI_PR_PR3; */
-/* } */
-
 EXTConfig extConfig = {{{0}}};
 uint32_t ext_int_lines[] = { 8, 3, 4, 5 };
 /* uint32_t ext_int_lines[] = { }; */
@@ -272,19 +237,33 @@ void matrix_init_user() {
 	osalSysUnlock();
 }
 
+uint32_t since_last = 0;
+#define wait_between_moves 100
+
+int8_t scale_mouse_delta(int32_t d) {
+  uint32_t dd = 10*d*d;
+  if(dd > 127) dd = 127;
+  return dd*(d>0?1:-1);
+}
+
 void matrix_scan_user(void) {
+  
   if(did_happen){
     xprintf("got to %d\n", did_happen);
     did_happen = 0;
   }
-  if(dx || dy) {
-    int32_t scale = 20;
-    mouse_report.x = scale*dx*dx*(dx>0?1:-1);
-    mouse_report.y = scale*dy*dy*(dy>0?1:-1);
+  if((dx || dy) && since_last > wait_between_moves) {
+    xprintf("%d, %d [%d]\n", (int)dx, (int)dy, (int)since_last);
+    mouse_report.x = scale_mouse_delta(dx);
+    mouse_report.y = scale_mouse_delta(dy);
     dx = 0;
     dy = 0;
     host_mouse_send(&mouse_report);
-  }
+    since_last = 0;
+  } 
+  // these are regular enough to use for timing
+  since_last++;
+    
   #ifdef AUDIO_ENABLE
     if (muse_mode) {
       if (muse_counter == 0) {
