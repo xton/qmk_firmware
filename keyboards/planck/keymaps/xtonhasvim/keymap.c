@@ -234,6 +234,7 @@ void gotta_cb(EXTDriver *extp, expchannel_t channel) {
 }
 
 uint32_t ext_int_lines[] = { 8, 3, 4, 5 };
+/* uint32_t ext_int_lines[] = { }; */
 #define ext_int_lines_count sizeof(ext_int_lines) / sizeof(uint32_t)
 
 void matrix_init_user() {
@@ -256,7 +257,8 @@ void matrix_init_user() {
 	palSetGroupMode(GPIOB, PAL_PORT_BIT(5), 0, PAL_MODE_INPUT);
 
 	for(int i = 0; i < ext_int_lines_count; i++){
-		extConfig.channels[ext_int_lines[i]].mode = EXT_CH_MODE_BOTH_EDGES | EXT_CH_MODE_AUTOSTART;
+		extConfig.channels[ext_int_lines[i]].mode = 
+			EXT_CH_MODE_BOTH_EDGES | EXT_CH_MODE_AUTOSTART | EXT_MODE_GPIOB;
 		extConfig.channels[ext_int_lines[i]].cb = gotta_cb;
 	}
 
