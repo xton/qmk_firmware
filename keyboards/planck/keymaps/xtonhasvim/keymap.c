@@ -238,7 +238,7 @@ void matrix_init_user() {
 }
 
 uint32_t since_last = 0;
-#define wait_between_moves 100
+#define wait_between_moves 1
 
 int8_t scale_mouse_delta(int32_t d) {
   uint32_t dd = 10*d*d;

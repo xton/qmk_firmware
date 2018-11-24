@@ -30,6 +30,7 @@
 #include "wait.h"
 #include "usb_descriptor.h"
 #include "usb_driver.h"
+#include "print.h"
 
 #ifdef NKRO_ENABLE
   #include "keycode_config.h"
@@ -696,6 +697,7 @@ void send_mouse(report_mouse_t *report) {
   osalSysLock();
   if(usbGetDriverStateI(&USB_DRIVER) != USB_ACTIVE) {
     osalSysUnlock();
+    print("not ready\n");
     return;
   }
 
@@ -704,8 +706,9 @@ void send_mouse(report_mouse_t *report) {
      * every iteration - otherwise the system will remain locked,
      * no interrupts served, so USB not going through as well.
      * Note: for suspend, need USB_USE_WAIT == TRUE in halconf.h */
-    if (osalThreadSuspendTimeoutS(&(&USB_DRIVER)->epc[MOUSE_IN_EPNUM]->in_state->thread, MS2ST(10)==MSG_TIMEOUT)) {
+    if (osalThreadSuspendTimeoutS(&(&USB_DRIVER)->epc[MOUSE_IN_EPNUM]->in_state->thread, MS2ST(10)) == MSG_TIMEOUT) {
       osalSysUnlock();
+      print("timeout\n");
       return;
     }
   }
