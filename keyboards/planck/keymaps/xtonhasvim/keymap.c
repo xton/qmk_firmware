@@ -15,6 +15,7 @@
  */
 
 #include QMK_KEYBOARD_H
+#include <mousekey.h>
 #include "xtonhasvim.h"
 #include "action_layer.h"
 #include "muse.h"
@@ -226,6 +227,11 @@ void okay_yeah(void) {
 /* } */
 
 EXTConfig extConfig = {{{0}}};
+uint32_t ext_int_lines[] = { 8, 3, 4, 5 };
+/* uint32_t ext_int_lines[] = { }; */
+#define ext_int_lines_count sizeof(ext_int_lines) / sizeof(uint32_t)
+static int32_t dx = 0;
+static int32_t dy = 0;
 
 void gotta_cb(EXTDriver *extp, expchannel_t channel) {
 	print("uh, yeah");
@@ -233,24 +239,22 @@ void gotta_cb(EXTDriver *extp, expchannel_t channel) {
 	did_happen += 1;
 }
 
-uint32_t ext_int_lines[] = { 8, 3, 4, 5 };
-/* uint32_t ext_int_lines[] = { }; */
-#define ext_int_lines_count sizeof(ext_int_lines) / sizeof(uint32_t)
+void ballMoved(EXTDriver *extp, expchannel_t channel) {
+  switch(channel) {
+    case 8: dy--; break;
+    case 3: dy++; break;
+    case 4: dx--; break;
+    case 5: dx++; break;
+  }
+}
+
+static report_mouse_t mouse_report = {0};
 
 void matrix_init_user() {
-	/* for(int i = 0; i < pin_count; i++){ */
-	/* 	setPinInputHigh(pins[i]); */
-	/* } */
-	// this doesn't work
-	/* palLineEnableEventI(PAL_LINE(GPIOB, 4), PAL_EVENT_MODE_BOTH_EDGES, okay_yeah); */
-	
-	// enable input on this pin, required to receive interrupts
-	/* palSetPadMode(GPIOB, 3, PAL_MODE_INPUT_PULLUP); */
 
 	osalSysLock();
 
 	/* // map line 2 to wire B3 */
-	/* SYSCFG->EXTICR[0] |= SYSCFG_EXTICR1_EXTI3_PB; */
 	palSetGroupMode(GPIOB, PAL_PORT_BIT(8), 0, PAL_MODE_INPUT);
 	palSetGroupMode(GPIOB, PAL_PORT_BIT(3), 0, PAL_MODE_INPUT);
 	palSetGroupMode(GPIOB, PAL_PORT_BIT(4), 0, PAL_MODE_INPUT);
@@ -259,33 +263,27 @@ void matrix_init_user() {
 	for(int i = 0; i < ext_int_lines_count; i++){
 		extConfig.channels[ext_int_lines[i]].mode = 
 			EXT_CH_MODE_BOTH_EDGES | EXT_CH_MODE_AUTOSTART | EXT_MODE_GPIOB;
-		extConfig.channels[ext_int_lines[i]].cb = gotta_cb;
+		extConfig.channels[ext_int_lines[i]].cb = ballMoved;
 	}
 
 
 	extStart(&EXTD1, &extConfig);
 
 	osalSysUnlock();
-
-	/* // enable rising edge for line 2 */
-	/* EXTI->RTSR |= EXTI_RTSR_TR3; */
-	/* // and falling edge */
-	/* EXTI->FTSR |= EXTI_FTSR_TR3; */
-	/* // enable this interrupt */
-	/* EXTI->IMR |= EXTI_IMR_MR3; */
-
-	/* // copypasta */
-	/* NVIC_DisableIRQ(EXTI0_IRQn); */
-	/* NVIC_ClearPendingIRQ(EXTI0_IRQn); */
-	/* NVIC_SetPriority(EXTI0_IRQn, 0); */
-	/* NVIC_EnableIRQ(EXTI0_IRQn); */
-
 }
 
 void matrix_scan_user(void) {
   if(did_happen){
-	xprintf("got to %d\n", did_happen);
-	did_happen = 0;
+    xprintf("got to %d\n", did_happen);
+    did_happen = 0;
+  }
+  if(dx || dy) {
+    int32_t scale = 20;
+    mouse_report.x = scale*dx*dx*(dx>0?1:-1);
+    mouse_report.y = scale*dy*dy*(dy>0?1:-1);
+    dx = 0;
+    dy = 0;
+    host_mouse_send(&mouse_report);
   }
   #ifdef AUDIO_ENABLE
     if (muse_mode) {
@@ -300,12 +298,4 @@ void matrix_scan_user(void) {
       muse_counter = (muse_counter + 1) % muse_tempo;
     }
   #endif
-	for(int i = 0; i < pin_count; i++){
-		/* uint16_t on = readPin(pins[i]); */
-		/* if(on != pins_were[i]) { */
-		/* 	TAP(pins_kc[i]); */
-		/* } */
-		/* pins_were[i] = on; */
-
-	}
 }
