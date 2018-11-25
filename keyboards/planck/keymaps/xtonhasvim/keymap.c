@@ -26,6 +26,9 @@
 
 extern keymap_config_t keymap_config;
 
+static report_mouse_t mouse_report = {0};
+
+
 /************************************
  * states
  ************************************/
@@ -126,7 +129,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   TO(_QWERTY), X_____X, X_____X,       X_____X,             X_____X,             X_____X,       KC_HOME, KC_PGDN, KC_PGUP, KC_END,  X_____X, X_____X, \
   _______,     X_____X, LGUI(KC_LBRC), LGUI(LSFT(KC_LBRC)), LGUI(LSFT(KC_RBRC)), LGUI(KC_RBRC), KC_LEFT, KC_DOWN, KC_UP,   KC_RGHT, _______, X_____X, \
   _______,     X_____X, X_____X,       X_____X,             X_____X,             X_____X,       X_____X, X_____X, X_____X, X_____X, X_____X, _______, \
-  _______,     _______, _______,       _______,             _______,             X_____X,       X_____X, _______, _______, _______, _______, X_____X \
+  _______,     _______, _______,       _______,             _______,             _______, KC_MS_BTN1, _______, _______, _______, _______, X_____X \
 ),
 
 
@@ -200,9 +203,6 @@ void ballMoved(EXTDriver *extp, expchannel_t channel) {
     case 5: dx++; break;
   }
 }
-
-static report_mouse_t mouse_report = {0};
-
 void matrix_init_user() {
 
 	osalSysLock();
@@ -310,3 +310,22 @@ void matrix_scan_user(void) {
     }
   #endif
 }
+
+/** need to reflect mouse buttons in our own mouse tracking too */
+bool process_record_keymap(uint16_t keycode, keyrecord_t *record) {
+  if(keycode == KC_MS_BTN1) {
+    if(record->event.pressed) mouse_report.buttons |= MOUSE_BTN1;
+    else mouse_report.buttons &= ~MOUSE_BTN1;
+  }
+  if(keycode == KC_MS_BTN2) {
+    if(record->event.pressed) mouse_report.buttons |= MOUSE_BTN2;
+    else mouse_report.buttons &= ~MOUSE_BTN2;
+  }
+  if(keycode == KC_MS_BTN3) {
+    if(record->event.pressed) mouse_report.buttons |= MOUSE_BTN3;
+    else mouse_report.buttons &= ~MOUSE_BTN3;
+  }
+  // and let this fall through for the normal mousekeys mechanism to handle
+  return true;
+}
+
