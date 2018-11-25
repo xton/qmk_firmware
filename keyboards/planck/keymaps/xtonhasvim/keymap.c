@@ -82,7 +82,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   KC_TILD, KC_F1,       KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,   KC_UNDS,    KC_PLUS, KC_LCBR, KC_RCBR,     KC_BSPC, \
   KC_DEL,  KC_EXLM,     KC_AT,   KC_HASH, KC_DLR,  KC_PERC, KC_CIRC, KC_AMPR,    KC_ASTR, KC_LPRN, KC_RPRN,     KC_PIPE, \
   _______, KC_F7,       KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,  X_____X,    X_____X, X_____X, X_____X,     KC_ENT, \
-  RESET,   TO(_QWERTY), _______, _______, _______, _______, _______, MO(_RAISE), _______, _______, TO(_QWERTY), X_____X \
+  RESET,   TO(_QWERTY), _______, _______, _______, KC_MS_BTN2, KC_MS_BTN1, MO(_RAISE), _______, _______, TO(_QWERTY), X_____X \
 ),
 
 /* Raise
@@ -100,7 +100,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   KC_GRV,  X_____X,     X_____X, X_____X, X_____X,    X_____X, X_____X, KC_MINS, KC_EQL,  KC_LBRC, KC_RBRC,     KC_BSPC, \
   KC_DEL,  KC_1,        KC_2,    KC_3,    KC_4,       KC_5,    KC_6,    KC_7,    KC_8,    KC_9,    KC_0,        KC_BSLS, \
   _______, X_____X,     X_____X, X_____X, X_____X,    X_____X, X_____X, X_____X, X_____X, X_____X, X_____X,     KC_ENT, \
-  X_____X, TO(_QWERTY), _______, _______, MO(_LOWER), _______, _______, _______, _______, _______, TO(_QWERTY), RESET \
+  X_____X, TO(_QWERTY), _______, _______, MO(_LOWER), KC_MS_BTN2, KC_MS_BTN1, _______, _______, _______, TO(_QWERTY), RESET \
 ),
 
 /* Adjust (Lower + Raise)
@@ -185,24 +185,12 @@ uint32_t pins[pin_count] = { B8, B3, B4, B5 };
 uint32_t pins_kc[pin_count] = { KC_UP, KC_DOWN, KC_LEFT, KC_RIGHT };
 #define mouse_step 20
 
-uint32_t did_happen = 0;
-
-void okay_yeah(void) {
-	did_happen += 1;
-}
-
 EXTConfig extConfig = {{{0}}};
 uint32_t ext_int_lines[] = { 8, 3, 4, 5 };
 /* uint32_t ext_int_lines[] = { }; */
 #define ext_int_lines_count sizeof(ext_int_lines) / sizeof(uint32_t)
 static int32_t dx = 0;
 static int32_t dy = 0;
-
-void gotta_cb(EXTDriver *extp, expchannel_t channel) {
-	print("uh, yeah");
-	xprintf("woo yeah: %d\n", channel);
-	did_happen += 1;
-}
 
 void ballMoved(EXTDriver *extp, expchannel_t channel) {
   switch(channel) {
@@ -238,27 +226,49 @@ void matrix_init_user() {
 }
 
 uint32_t since_last = 0;
-#define wait_between_moves 1
+#define wait_between_moves 0
 
-int8_t scale_mouse_delta(int32_t d) {
-  uint32_t dd = 10*d*d;
+int8_t scale_mouse_delta(int32_t d, uint32_t sl) {
+  int32_t scale = 10;
+  if(sl < 20) scale = 100;
+  else if (sl < 50) scale = 50;
+  else if (sl < 100) scale = 30;
+  else if (sl < 200) scale = 15;
+  uint32_t dd = scale*d*d;
   if(dd > 127) dd = 127;
   return dd*(d>0?1:-1);
 }
 
 void matrix_scan_user(void) {
   
-  if(did_happen){
-    xprintf("got to %d\n", did_happen);
-    did_happen = 0;
-  }
   if((dx || dy) && since_last > wait_between_moves) {
     xprintf("%d, %d [%d]\n", (int)dx, (int)dy, (int)since_last);
-    mouse_report.x = scale_mouse_delta(dx);
-    mouse_report.y = scale_mouse_delta(dy);
+    if(IS_LAYER_ON(_LOWER)){
+      if(dx > 0) {
+        for(int i = 0; i < dx; i++) TAP(KC_RIGHT);
+      } else {
+        dx = -dx;
+        for(int i = 0; i < dx; i++) TAP(KC_LEFT);
+      }
+      if(dy > 0) {
+        for(int i = 0; i < dy; i++) TAP(KC_DOWN);
+      } else {
+        dy = -dy;
+        for(int i = 0; i < dy; i++) TAP(KC_UP);
+      }
+    } else if(IS_LAYER_ON(_RAISE)) {
+      mouse_report.h = dx;
+      mouse_report.v = dy;
+      mouse_report.x = mouse_report.y = 0;
+      host_mouse_send(&mouse_report);
+    } else {
+      mouse_report.x = scale_mouse_delta(dx, since_last);
+      mouse_report.y = scale_mouse_delta(dy, since_last);
+      mouse_report.v = mouse_report.h = 0;
+      host_mouse_send(&mouse_report);
+    }
     dx = 0;
     dy = 0;
-    host_mouse_send(&mouse_report);
     since_last = 0;
   } 
   // these are regular enough to use for timing
