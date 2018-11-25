@@ -227,6 +227,11 @@ void matrix_init_user() {
 
 uint32_t since_last = 0;
 #define wait_between_moves 0
+static int32_t iix = 0;
+static int32_t idx = 0;
+static int32_t iiy = 0;
+static int32_t idy = 0;
+
 
 int8_t scale_mouse_delta(int32_t d, uint32_t sl) {
   int32_t scale = 10;
@@ -262,8 +267,21 @@ void matrix_scan_user(void) {
       mouse_report.x = mouse_report.y = 0;
       host_mouse_send(&mouse_report);
     } else {
-      mouse_report.x = scale_mouse_delta(dx, since_last);
-      mouse_report.y = scale_mouse_delta(dy, since_last);
+      if(dx > 0) {
+        mouse_report.x = scale_mouse_delta(dx, iix);
+        iix = 0;
+      } else if(dx < 0) {
+        mouse_report.x = scale_mouse_delta(dx, idx);
+        idx = 0;
+      } else mouse_report.x = 0;
+
+      if(dy > 0) {
+        mouse_report.y = scale_mouse_delta(dy, iiy);
+        iiy = 0;
+      } else if(dy < 0) {
+        mouse_report.y = scale_mouse_delta(dy, idy);
+        idy = 0;
+      } else mouse_report.y = 0;
       mouse_report.v = mouse_report.h = 0;
       host_mouse_send(&mouse_report);
     }
@@ -273,6 +291,10 @@ void matrix_scan_user(void) {
   } 
   // these are regular enough to use for timing
   since_last++;
+  iix++;
+  idx++;
+  iiy++;
+  idy++;
     
   #ifdef AUDIO_ENABLE
     if (muse_mode) {
