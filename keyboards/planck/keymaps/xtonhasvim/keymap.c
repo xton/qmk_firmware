@@ -19,14 +19,17 @@
 #include "xtonhasvim.h"
 #include "action_layer.h"
 #include "muse.h"
+
+
+#ifdef __ARM__
 #include "hal.h"
 #include "hal_pal.h"
 #include "stm32_registry.h"
+#endif
 
 
 extern keymap_config_t keymap_config;
 
-static report_mouse_t mouse_report = {0};
 
 
 /************************************
@@ -181,6 +184,9 @@ void encoder_update(bool clockwise) {
   }
 }
 
+#ifdef __ARM__
+static report_mouse_t mouse_report = {0};
+
 #define TAP(kc) do { register_code(kc); unregister_code(kc); } while (0)
 #define pin_count 4
 uint32_t pins_were[pin_count] = { 0, 0, 0, 0 };
@@ -203,6 +209,7 @@ void ballMoved(EXTDriver *extp, expchannel_t channel) {
     case 5: dx++; break;
   }
 }
+
 void matrix_init_user() {
 
 	osalSysLock();
@@ -243,9 +250,12 @@ int8_t scale_mouse_delta(int32_t d, uint32_t sl) {
   if(dd > 127) dd = 127;
   return dd*(d>0?1:-1);
 }
+#endif /* arm */
 
 void matrix_scan_user(void) {
   
+#ifdef __ARM__
+
   if((dx || dy) && since_last > wait_between_moves) {
     xprintf("%d, %d [%d]\n", (int)dx, (int)dy, (int)since_last);
     if(IS_LAYER_ON(_LOWER)){
@@ -295,6 +305,7 @@ void matrix_scan_user(void) {
   idx++;
   iiy++;
   idy++;
+#endif /* arm */
     
   #ifdef AUDIO_ENABLE
     if (muse_mode) {
@@ -313,6 +324,7 @@ void matrix_scan_user(void) {
 
 /** need to reflect mouse buttons in our own mouse tracking too */
 bool process_record_keymap(uint16_t keycode, keyrecord_t *record) {
+#ifdef __arm__
   if(keycode == KC_MS_BTN1) {
     if(record->event.pressed) mouse_report.buttons |= MOUSE_BTN1;
     else mouse_report.buttons &= ~MOUSE_BTN1;
@@ -325,6 +337,7 @@ bool process_record_keymap(uint16_t keycode, keyrecord_t *record) {
     if(record->event.pressed) mouse_report.buttons |= MOUSE_BTN3;
     else mouse_report.buttons &= ~MOUSE_BTN3;
   }
+#endif /* arm */
   // and let this fall through for the normal mousekeys mechanism to handle
   return true;
 }
