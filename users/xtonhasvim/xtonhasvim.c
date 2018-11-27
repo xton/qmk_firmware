@@ -131,6 +131,8 @@ bool process_record_keymap(uint16_t keycode, keyrecord_t *record) {
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   /* keymap gets first whack */
   if(!process_record_keymap(keycode, record)) return false;
+  /* this just wants to update some state */
+  if(!process_record_trackball(keycode, record)) return false;
 
   /****** FIREY_RETURN *****/
   if(record->event.pressed && keycode == FIREY_RETURN) {

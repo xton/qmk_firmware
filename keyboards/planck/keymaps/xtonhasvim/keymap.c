@@ -17,6 +17,7 @@
 #include QMK_KEYBOARD_H
 #include <mousekey.h>
 #include "xtonhasvim.h"
+#include "trackball.h"
 #include "action_layer.h"
 #include "muse.h"
 
