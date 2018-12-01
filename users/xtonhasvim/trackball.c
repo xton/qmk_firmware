@@ -23,11 +23,11 @@
 #include "xtonhasvim.h"
 #include "trackball.h"
 
-#ifdef __ARM__
+#ifdef __arm__
 #include "hal.h"
 #include "hal_pal.h"
 //#include "stm32_registry.h"
-#endif /* __ARM__ */
+#endif /* __arm__ */
 
 
 static report_mouse_t mouse_report = {0};
@@ -47,7 +47,7 @@ static int32_t iiy = 0;
 static int32_t idy = 0;
 static int32_t since_last = 0;
 
-#ifdef __ARM__
+#ifdef __arm__
 EXTConfig extConfig = {{{0}}};
 
 
@@ -59,26 +59,29 @@ void ballMoved(EXTDriver *extp, expchannel_t channel) {
     case TB_LINE_RT: dx++; break;
   }
 }
-#endif /* __ARM__ */
+#endif /* __arm__ */
 
 void matrix_init_trackball(void) {
 
-#ifdef __ARM__
+#ifdef __arm__
 
 	osalSysLock();
 
-#define BALL_PIN(PAD,LINE,IDX) palSetGroupMode(GPIO ## PAD, PAL_PORT_BIT(LINE), 0, PAL_MODE_INPUT); \
-		extConfig.channels[LINE].mode = EXT_CH_MODE_BOTH_EDGES | EXT_CH_MODE_AUTOSTART | EXT_MODE_GPIO ## PAD; \
+#define C_GPIO(x) GPIO ## x
+#define C_EXT_MODE_GPIO(x) EXT_MODE_GPIO ## x
+
+#define BALL_PIN(PAD,LINE) palSetGroupMode(C_GPIO(PAD), PAL_PORT_BIT(LINE), 0, PAL_MODE_INPUT); \
+		extConfig.channels[LINE].mode = EXT_CH_MODE_BOTH_EDGES | EXT_CH_MODE_AUTOSTART | C_EXT_MODE_GPIO(PAD); \
 		extConfig.channels[LINE].cb = ballMoved
-  BALL_PIN(TB_PAD_UP,TB_LINE_UP,0);
-  BALL_PIN(TB_PAD_DN,TB_LINE_DN,1);
-  BALL_PIN(TB_PAD_LT,TB_LINE_LT,2);
-  BALL_PIN(TB_PAD_RT,TB_LINE_RT,3);
+  BALL_PIN(TB_PAD_UP,TB_LINE_UP);
+  BALL_PIN(TB_PAD_DN,TB_LINE_DN);
+  BALL_PIN(TB_PAD_LT,TB_LINE_LT);
+  BALL_PIN(TB_PAD_RT,TB_LINE_RT);
 
 	extStart(&EXTD1, &extConfig);
 
 	osalSysUnlock();
-#endif /* __ARM__ */
+#endif /* __arm__ */
 }
 
 
