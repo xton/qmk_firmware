@@ -42,3 +42,11 @@
 void matrix_scan_trackball(void);
 void matrix_init_trackball(void);
 bool process_record_trackball(uint16_t keycode, keyrecord_t *record);
+
+enum {
+  TB_MODE_MOUSE = 0,
+  TB_MODE_ARROW,
+  TB_MODE_SCROLL
+};
+
+extern uint8_t tb_ball_mode;

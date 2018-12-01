@@ -21,6 +21,7 @@
 
 #include <mousekey.h>
 #include "xtonhasvim.h"
+#include "trackball.h"
 
 #ifdef __ARM__
 #include "hal.h"
@@ -30,11 +31,12 @@
 
 
 static report_mouse_t mouse_report = {0};
+uint8_t tb_ball_mode = TB_MODE_MOUSE;
 
 #define TAP(kc) do { register_code(kc); unregister_code(kc); } while (0)
 #define wait_between_moves 1
 
-uint32_t pins_were[pin_count] = { 0, 0, 0, 0 };
+uint32_t pins_were[4] = { 0, 0, 0, 0 };
 
 
 static int32_t dx = 0;
@@ -43,6 +45,7 @@ static int32_t iix = 0;
 static int32_t idx = 0;
 static int32_t iiy = 0;
 static int32_t idy = 0;
+static int32_t since_last = 0;
 
 #ifdef __ARM__
 EXTConfig extConfig = {{{0}}};
@@ -93,7 +96,7 @@ int8_t scale_mouse_delta(int32_t d, uint32_t sl) {
 void matrix_scan_trackball(void) {
   if((dx || dy) && since_last > wait_between_moves) {
     xprintf("%d, %d [%d]\n", (int)dx, (int)dy, (int)since_last);
-    if(IS_LAYER_ON(_LOWER)){
+    if(tb_ball_mode == TB_MODE_ARROW){
       /** arrow keys */
       if(dx > 0) {
         for(int i = 0; i < dx; i++) TAP(KC_RIGHT);
@@ -107,13 +110,13 @@ void matrix_scan_trackball(void) {
         dy = -dy;
         for(int i = 0; i < dy; i++) TAP(KC_UP);
       }
-    } else if(IS_LAYER_ON(_RAISE)) {
+    } else if(tb_ball_mode == TB_MODE_SCROLL) {
       /** scroll wheels */
       mouse_report.h = dx;
       mouse_report.v = dy;
       mouse_report.x = mouse_report.y = 0;
       host_mouse_send(&mouse_report);
-    } else {
+    } else if(tb_ball_mode == TB_MODE_MOUSE) {
       /** mouse movement */
       if(dx > 0) {
         mouse_report.x = scale_mouse_delta(dx, iix);
