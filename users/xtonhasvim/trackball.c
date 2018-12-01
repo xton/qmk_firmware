@@ -14,7 +14,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include QMK_KEYBOARD_H
+#include QMK_KEYBOARD_CONFIG_H
 #ifdef TRACKBALL_ENABLED
+
 
 #include <mousekey.h>
 #include "xtonhasvim.h"
@@ -29,6 +32,7 @@
 static report_mouse_t mouse_report = {0};
 
 #define TAP(kc) do { register_code(kc); unregister_code(kc); } while (0)
+#define wait_between_moves 1
 
 uint32_t pins_were[pin_count] = { 0, 0, 0, 0 };
 
@@ -42,7 +46,6 @@ static int32_t idy = 0;
 
 #ifdef __ARM__
 EXTConfig extConfig = {{{0}}};
-uint32_t ext_int_lines[] = { TB_LINE_UP, TB_LINE_DN, TB_LINE_LT, TB_LINE_RT };
 
 
 void ballMoved(EXTDriver *extp, expchannel_t channel) {
@@ -61,19 +64,13 @@ void matrix_init_trackball(void) {
 
 	osalSysLock();
 
-	/* // map line 2 to wire B3 */
-  // TODO: may need to make a macro out of this
-	palSetGroupMode(GPIO ## TB_PAD_UP, PAL_PORT_BIT(TB_LINE_UP), 0, PAL_MODE_INPUT);
-	palSetGroupMode(GPIO ## TB_PAD_DN, PAL_PORT_BIT(TB_LINE_DN), 0, PAL_MODE_INPUT);
-	palSetGroupMode(GPIO ## TB_PAD_LT, PAL_PORT_BIT(TB_LINE_LT), 0, PAL_MODE_INPUT);
-	palSetGroupMode(GPIO ## TB_PAD_RT, PAL_PORT_BIT(TB_LINE_RT), 0, PAL_MODE_INPUT);
-
-	for(int i = 0; i < 4; i++){
-		extConfig.channels[ext_int_lines[i]].mode = 
-			EXT_CH_MODE_BOTH_EDGES | EXT_CH_MODE_AUTOSTART | EXT_MODE_GPIOB;
-		extConfig.channels[ext_int_lines[i]].cb = ballMoved;
-	}
-
+#define BALL_PIN(PAD,LINE,IDX) palSetGroupMode(GPIO ## PAD, PAL_PORT_BIT(LINE), 0, PAL_MODE_INPUT); \
+		extConfig.channels[LINE].mode = EXT_CH_MODE_BOTH_EDGES | EXT_CH_MODE_AUTOSTART | EXT_MODE_GPIO ## PAD; \
+		extConfig.channels[LINE].cb = ballMoved
+  BALL_PIN(TB_PAD_UP,TB_LINE_UP,0);
+  BALL_PIN(TB_PAD_DN,TB_LINE_DN,1);
+  BALL_PIN(TB_PAD_LT,TB_LINE_LT,2);
+  BALL_PIN(TB_PAD_RT,TB_LINE_RT,3);
 
 	extStart(&EXTD1, &extConfig);
 
@@ -92,12 +89,8 @@ int8_t scale_mouse_delta(int32_t d, uint32_t sl) {
   if(dd > 127) dd = 127;
   return dd*(d>0?1:-1);
 }
-#endif /* arm */
 
 void matrix_scan_trackball(void) {
-  
-#ifdef __ARM__
-
   if((dx || dy) && since_last > wait_between_moves) {
     xprintf("%d, %d [%d]\n", (int)dx, (int)dy, (int)since_last);
     if(IS_LAYER_ON(_LOWER)){
@@ -150,7 +143,6 @@ void matrix_scan_trackball(void) {
   idx++;
   iiy++;
   idy++;
-#endif /* arm */
 }
 
 /** need to reflect mouse buttons in our own mouse tracking too */
@@ -171,10 +163,11 @@ bool process_record_trackball(uint16_t keycode, keyrecord_t *record) {
   return true;
 }
 
+#else /* TRACKBALL_ENABLED */
 
-#else 
+#error "DEBUG: should be enabled now"
 
-/**
+/** stubs for when trackball is off */
 void matrix_scan_trackball(void) {}
 void matrix_init_trackball(void) {}
 bool process_record_trackball(uint16_t keycode, keyrecord_t *record) { return true; }

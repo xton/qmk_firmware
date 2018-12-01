@@ -61,5 +61,13 @@ extern uint8_t vim_cmd_layer(void);
 
 extern uint16_t vstate;
 
+/* xtonhasvim defines many _user() callbacks, but leaves open
+ * weakly-defined _keymap() versions for you to override:
+ * 
+ *   bool process_record_keymap(uint16_t keycode, keyrecord_t *record);
+ *   void matrix_scan_keymap(void);
+ *   void matrix_init_keymap(void);
+ */
+
 
 #endif

@@ -23,12 +23,6 @@
 #include "fancylighting.h"
 
 
-__attribute__ ((weak))
-void matrix_scan_keymap(void) {
-  // override me, if you want.
-  return;
-}
-
 #define ABSDIFF(a,b) ((a)>(b)?(a)-(b):(b)-(a))
 
 #define FADE_BACK_TIME 500
@@ -147,7 +141,7 @@ void set_state_leds(void) {
   return;
 }
 
-void matrix_scan_user(void) {
+void matrix_scan_fancylighting(void) {
   static uint32_t last_layer = 0;
   static uint32_t last_vstate = 0;
   if(last_layer != layer_state || last_vstate != vstate) set_state_leds();
@@ -162,11 +156,11 @@ void matrix_scan_user(void) {
       rgb_mode_fade_back();
       break;
   }
-  matrix_scan_keymap();
 }
 
 #else
 
+void matrix_scan_fancylighting(void) {}
 void start_firey_return(void) {}
 
 #endif

@@ -26,11 +26,14 @@ extern LED_TYPE shadowed_led[];
 
 
 #endif //RGBLIGHT_ENABLE
+
 void start_firey_return(void);
+void matrix_scan_fancylighting(void);
 
 enum xtonhasvim_rgbmodes {
   BREATH_FIRE = 1,
   FADE_BACK
 };
+
 
 #endif //_fancy_lighting_h

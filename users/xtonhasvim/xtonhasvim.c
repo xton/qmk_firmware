@@ -16,6 +16,7 @@
 
 #include "xtonhasvim.h"
 #include "fancylighting.h"
+#include "trackball.h"
 
 /************************************
  * helper foo
@@ -642,4 +643,30 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     return true;
   }
 }
+
+__attribute__ ((weak))
+void matrix_scan_keymap(void) {
+  // override me, if you want.
+  return;
+}
+
+void matrix_scan_user(void) {
+  matrix_scan_trackball();
+  matrix_scan_fancylighting();
+  matrix_scan_keymap();
+}
+
+
+__attribute__ ((weak))
+void matrix_init_keymap(void) {
+  // override me, if you want.
+  return;
+}
+
+void matrix_init_user(void) {
+  matrix_init_trackball();
+  matrix_init_keymap();
+}
+
+
 

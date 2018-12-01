@@ -17,24 +17,28 @@
 #pragma once
 
 /*
- * must define: 
+ * To use a trackball, add this to your rules.mk file
  *
- * TRACKBALL_ENABLED // enable support
+ * TRACKBALL_ENABLED = yes 
  *
- * // the line for each direction (numeric part of pin)
- * TB_LINE_UP
- * TB_LINE_DN
- * TB_LINE_LT
- * TB_LINE_RT
+ * # the line for each direction (numeric part of pin)
+ * TB_LINE_UP = 8
+ * TB_LINE_DN = 3
+ * TB_LINE_LT = 4
+ * TB_LINE_RT = 5
  *
- * //the pad for each direction (a letter)
- * TB_PAD_UP
- * TB_PAD_DN
- * TB_PAD_LT
- * TB_PAD_RT
+ * # the pad for each direction (a letter)
+ * TB_PAD_UP = B
+ * TB_PAD_DN = B
+ * TB_PAD_LT = B
+ * TB_PAD_RT = B
  *
  */
 
+/**
+ * These functions will be called for you by those in xtonhasvim.c
+ *
+ */
 void matrix_scan_trackball(void);
 void matrix_init_trackball(void);
 bool process_record_trackball(uint16_t keycode, keyrecord_t *record);

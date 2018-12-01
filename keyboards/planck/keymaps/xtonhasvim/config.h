@@ -41,21 +41,21 @@
 #define ENCODER_RESOLUTION 4
 
 
-#ifdef __ARM__
-#define TRACKBALL_ENABLED
+/* #ifdef __ARM__ */
+/* #define TRACKBALL_ENABLED */
 
-// the line for each direction (numeric part of pin)
-#define TB_LINE_UP 8
-#define TB_LINE_DN 3
-#define TB_LINE_LT 4
-#define TB_LINE_RT 5
+/* // the line for each direction (numeric part of pin) */
+/* #define TB_LINE_UP 8 */
+/* #define TB_LINE_DN 3 */
+/* #define TB_LINE_LT 4 */
+/* #define TB_LINE_RT 5 */
 
-//the pad for each direction (a letter)
-#define TB_PAD_UP B
-#define TB_PAD_DN B
-#define TB_PAD_LT B
-#define TB_PAD_RT B
+/* //the pad for each direction (a letter) */
+/* #define TB_PAD_UP B */
+/* #define TB_PAD_DN B */
+/* #define TB_PAD_LT B */
+/* #define TB_PAD_RT B */
 
-#endif
+/* #endif */
 
 #endif
