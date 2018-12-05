@@ -17,8 +17,8 @@ ifeq ($(strip $(TRACKBALL_ENABLED)), yes)
     OPT_DEFS += -DTB_PAD_DN=$(TB_PAD_DN)
     OPT_DEFS += -DTB_PAD_LT=$(TB_PAD_LT)
     OPT_DEFS += -DTB_PAD_RT=$(TB_PAD_RT)
-    ifeq ($(strip $(TB_POLLING_ENABLED)), yes)
-      OPT_DEFS += -DTB_POLLING_ENABLED
+    ifeq ($(strip $(TB_INTERRUPT_ENABLED)), yes)
+      OPT_DEFS += -DTB_INTERRUPT_ENABLED
     endif
 
 endif

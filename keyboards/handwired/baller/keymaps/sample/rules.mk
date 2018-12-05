@@ -3,7 +3,7 @@ USER_NAME := xtonhasvim
 TRACKBALL_ENABLED = yes 
 
 # don't use interrupts
-TB_POLLING_ENABLED = yes
+# TB_INTERRUPT_ENABLED = no
 
 # the line for each direction (numeric part of pin)
 TB_LINE_UP = 7

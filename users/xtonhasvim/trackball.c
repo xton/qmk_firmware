@@ -76,7 +76,7 @@ static void poll_pins(void) {
   }
 }
 
-#ifndef TB_POLLING_ENABLED
+#ifdef TB_INTERRUPT_ENABLED
 
 #ifdef __arm__
 EXTConfig extConfig = {{{0}}};
@@ -100,11 +100,11 @@ ISR(PCINT0_vect){
 
 #endif /* __AVR__ */
 
-#endif /* !TB_POLLING_ENABLED */
+#endif /* TB_INTERRUPT_ENABLED */
 
 void matrix_init_trackball(void) {
 
-#ifndef TB_POLLING_ENABLED
+#ifdef TB_INTERRUPT_ENABLED
 #ifdef __arm__
 
 	osalSysLock();
@@ -144,7 +144,7 @@ void matrix_init_trackball(void) {
 	// turn on PC int
 	PCICR |= (1 << PCIE0);
 #endif /* __AVR__ */
-#endif /* !TB_POLLING_ENABLED */
+#endif /* TB_INTERRUPT_ENABLED */
 }
 
 
@@ -160,7 +160,7 @@ int8_t scale_mouse_delta(int32_t d, uint32_t sl) {
 }
 
 void matrix_scan_trackball(void) {
-#ifdef TB_POLLING_ENABLED
+#ifndef TB_INTERRUPT_ENABLED
   poll_pins();
 #endif 
   if(has_moved && since_last > wait_between_moves) {
