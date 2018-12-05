@@ -38,7 +38,7 @@ uint8_t tb_ball_mode = TB_MODE_MOUSE;
 
 #define M_CONCAT_(a,b) a ## b
 #define M_CONCAT(a,b) M_CONCAT_(a,b)
-static uint16_t ipins[] = { 
+static uint32_t ipins[] = { 
   M_CONCAT(TB_PAD_UP,TB_LINE_UP),
   M_CONCAT(TB_PAD_DN,TB_LINE_DN),
   M_CONCAT(TB_PAD_LT,TB_LINE_LT),
@@ -114,6 +114,10 @@ void matrix_init_trackball(void) {
 	extStart(&EXTD1, &extConfig);
 
 	osalSysUnlock();
+
+  /* quelling warning of unused */
+  (void)ipins;
+  (void)ipins_were;
 #endif  /* __arm__ */
 #ifdef __AVR__
   /** this assumes the PC interrupts (B pad) */
@@ -150,10 +154,10 @@ void matrix_scan_trackball(void) {
     xprintf("%d, %d [%d]\n", (int)dx, (int)dy, (int)since_last);
     if(tb_ball_mode == TB_MODE_ARROW){
       /** arrow keys */
-      for(int i = 0; i < ddx; i++) TAP(KC_UP);
-      for(int i = 0; i < dix; i++) TAP(KC_DOWN);
-      for(int i = 0; i < diy; i++) TAP(KC_LEFT);
-      for(int i = 0; i < ddy; i++) TAP(KC_RIGHT);
+      for(int i = 0; i < ddy; i++) TAP(KC_UP);
+      for(int i = 0; i < diy; i++) TAP(KC_DOWN);
+      for(int i = 0; i < ddx; i++) TAP(KC_LEFT);
+      for(int i = 0; i < dix; i++) TAP(KC_RIGHT);
     } else if(tb_ball_mode == TB_MODE_SCROLL) {
       /** scroll wheels */
       mouse_report.h = dx;
