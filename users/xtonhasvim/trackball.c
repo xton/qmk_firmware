@@ -36,30 +36,63 @@ uint8_t tb_ball_mode = TB_MODE_MOUSE;
 #define TAP(kc) do { register_code(kc); unregister_code(kc); } while (0)
 #define wait_between_moves 1
 
-uint32_t pins_were[4] = { 0, 0, 0, 0 };
+#define M_CONCAT_(a,b) a ## b
+#define M_CONCAT(a,b) M_CONCAT_(a,b)
+static uint16_t ipins[] = { 
+  M_CONCAT(TB_PAD_UP,TB_LINE_UP),
+  M_CONCAT(TB_PAD_DN,TB_LINE_DN),
+  M_CONCAT(TB_PAD_LT,TB_LINE_LT),
+  M_CONCAT(TB_PAD_RT,TB_LINE_RT) };
+static uint32_t ipins_were[4] = { 0, 0, 0, 0 };
 
+static uint32_t deltas[4] = {0, 0, 0, 0};
+#define dix deltas[0]
+#define ddx deltas[1]
+#define diy deltas[2]
+#define ddy deltas[3]
+#define dx (dix - ddx)
+#define dy (diy - ddy)
 
-static int32_t dx = 0;
-static int32_t dy = 0;
+/** time since last movement in that direction */
 static int32_t iix = 0;
 static int32_t idx = 0;
 static int32_t iiy = 0;
 static int32_t idy = 0;
 static int32_t since_last = 0;
+static bool has_moved = false;
 
 #ifdef __arm__
 EXTConfig extConfig = {{{0}}};
 
-
 void ballMoved(EXTDriver *extp, expchannel_t channel) {
   switch(channel) {
-    case TB_LINE_UP: dy--; break;
-    case TB_LINE_DN: dy++; break;
-    case TB_LINE_LT: dx--; break;
-    case TB_LINE_RT: dx++; break;
+    case TB_LINE_UP: ddy++; break;
+    case TB_LINE_DN: diy++; break;
+    case TB_LINE_LT: ddx++; break;
+    case TB_LINE_RT: dix++; break;
   }
+  has_moved=true;
 }
 #endif /* __arm__ */
+#ifdef __AVR__
+
+/** not arm (hopefully avr) */
+
+ISR(PCINT0_vect){
+  for(int i = 0; i < 4; i++){ 
+    uint16_t on = readPin(ipins[i]);
+    if(on != ipins_were[i]) {
+      xprintf("OH SHIT - %d -> %d\n",i, deltas[i]);
+      deltas[i]++;	
+      has_moved=true;
+    }
+    ipins_were[i] = on;
+
+  }
+
+}
+
+#endif /* __AVR__ */
 
 void matrix_init_trackball(void) {
 
@@ -81,7 +114,23 @@ void matrix_init_trackball(void) {
 	extStart(&EXTD1, &extConfig);
 
 	osalSysUnlock();
-#endif /* __arm__ */
+#endif  /* __arm__ */
+#ifdef __AVR__
+  /** this assumes the PC interrupts (B pad) */
+
+  // it's not entirely clear that this does anything...
+	for(int i = 0; i < 4; i++){
+		setPinInputHigh(ipins[i]);
+	}
+	// enable interrupts
+	SREG |= (0x1 << 7);
+	// mask out just our target pins
+#define PC_(n) PCINT ## n
+#define PC(n) PC_(n)
+	PCMSK0 |= ((1 << PC(TB_LINE_UP)) | (1 << PC(TB_LINE_DN)) | (1 << PC(TB_LINE_LT)) | (1 << PC(TB_LINE_RT))); 
+	// turn on PC int
+	PCICR |= (1 << PCIE0);
+#endif /* __AVR__ */
 }
 
 
@@ -97,22 +146,14 @@ int8_t scale_mouse_delta(int32_t d, uint32_t sl) {
 }
 
 void matrix_scan_trackball(void) {
-  if((dx || dy) && since_last > wait_between_moves) {
+  if(has_moved && since_last > wait_between_moves) {
     xprintf("%d, %d [%d]\n", (int)dx, (int)dy, (int)since_last);
     if(tb_ball_mode == TB_MODE_ARROW){
       /** arrow keys */
-      if(dx > 0) {
-        for(int i = 0; i < dx; i++) TAP(KC_RIGHT);
-      } else {
-        dx = -dx;
-        for(int i = 0; i < dx; i++) TAP(KC_LEFT);
-      }
-      if(dy > 0) {
-        for(int i = 0; i < dy; i++) TAP(KC_DOWN);
-      } else {
-        dy = -dy;
-        for(int i = 0; i < dy; i++) TAP(KC_UP);
-      }
+      for(int i = 0; i < dix; i++) TAP(KC_UP);
+      for(int i = 0; i < ddx; i++) TAP(KC_DOWN);
+      for(int i = 0; i < diy; i++) TAP(KC_LEFT);
+      for(int i = 0; i < ddy; i++) TAP(KC_RIGHT);
     } else if(tb_ball_mode == TB_MODE_SCROLL) {
       /** scroll wheels */
       mouse_report.h = dx;
@@ -139,8 +180,7 @@ void matrix_scan_trackball(void) {
       mouse_report.v = mouse_report.h = 0;
       host_mouse_send(&mouse_report);
     }
-    dx = 0;
-    dy = 0;
+    dix=ddx=diy=ddy=0;
     since_last = 0;
   } 
   // these are regular enough to use for timing

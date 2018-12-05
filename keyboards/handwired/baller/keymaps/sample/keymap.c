@@ -42,7 +42,7 @@ void matrix_init_keymap(void) {
 	}
 	// enable interrupts
 	SREG |= (0x1 << 7);
-	// mask out just B5, B7
+	// mask out just our target pins
 	PCMSK0 |= ((1 << PCINT7) | (1 << PCINT5) | (1 << PCINT6) | (1 << PCINT0)); 
 	// turn on PC int
 	PCICR |= (1 << PCIE0);
