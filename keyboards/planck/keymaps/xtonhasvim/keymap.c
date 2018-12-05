@@ -22,15 +22,7 @@
 #include "muse.h"
 
 
-/* #ifdef __ARM__ */
-/* #include "hal.h" */
-/* #include "hal_pal.h" */
-/* #include "stm32_registry.h" */
-/* #endif */
-
-
 extern keymap_config_t keymap_config;
-
 
 
 /************************************
@@ -190,129 +182,8 @@ void encoder_update(bool clockwise) {
   }
 }
 
-/* #ifdef __ARM__ */
-/* static report_mouse_t mouse_report = {0}; */
-
-/* #define TAP(kc) do { register_code(kc); unregister_code(kc); } while (0) */
-/* #define pin_count 4 */
-/* uint32_t pins_were[pin_count] = { 0, 0, 0, 0 }; */
-/* uint32_t pins[pin_count] = { B8, B3, B4, B5 }; */
-/* uint32_t pins_kc[pin_count] = { KC_UP, KC_DOWN, KC_LEFT, KC_RIGHT }; */
-/* #define mouse_step 20 */
-
-/* EXTConfig extConfig = {{{0}}}; */
-/* uint32_t ext_int_lines[] = { 8, 3, 4, 5 }; */
-/* /1* uint32_t ext_int_lines[] = { }; *1/ */
-/* #define ext_int_lines_count sizeof(ext_int_lines) / sizeof(uint32_t) */
-/* static int32_t dx = 0; */
-/* static int32_t dy = 0; */
-
-/* void ballMoved(EXTDriver *extp, expchannel_t channel) { */
-/*   switch(channel) { */
-/*     case 8: dy--; break; */
-/*     case 3: dy++; break; */
-/*     case 4: dx--; break; */
-/*     case 5: dx++; break; */
-/*   } */
-/* } */
-
-/* void matrix_init_user() { */
-
-/* 	osalSysLock(); */
-
-/* 	/1* // map line 2 to wire B3 *1/ */
-/* 	palSetGroupMode(GPIOB, PAL_PORT_BIT(8), 0, PAL_MODE_INPUT); */
-/* 	palSetGroupMode(GPIOB, PAL_PORT_BIT(3), 0, PAL_MODE_INPUT); */
-/* 	palSetGroupMode(GPIOB, PAL_PORT_BIT(4), 0, PAL_MODE_INPUT); */
-/* 	palSetGroupMode(GPIOB, PAL_PORT_BIT(5), 0, PAL_MODE_INPUT); */
-
-/* 	for(int i = 0; i < ext_int_lines_count; i++){ */
-/* 		extConfig.channels[ext_int_lines[i]].mode = */ 
-/* 			EXT_CH_MODE_BOTH_EDGES | EXT_CH_MODE_AUTOSTART | EXT_MODE_GPIOB; */
-/* 		extConfig.channels[ext_int_lines[i]].cb = ballMoved; */
-/* 	} */
-
-
-/* 	extStart(&EXTD1, &extConfig); */
-
-/* 	osalSysUnlock(); */
-/* } */
-
-/* uint32_t since_last = 0; */
-/* #define wait_between_moves 0 */
-/* static int32_t iix = 0; */
-/* static int32_t idx = 0; */
-/* static int32_t iiy = 0; */
-/* static int32_t idy = 0; */
-
-
-/* int8_t scale_mouse_delta(int32_t d, uint32_t sl) { */
-/*   int32_t scale = 10; */
-/*   if(sl < 20) scale = 100; */
-/*   else if (sl < 50) scale = 50; */
-/*   else if (sl < 100) scale = 30; */
-/*   else if (sl < 200) scale = 15; */
-/*   uint32_t dd = scale*d*d; */
-/*   if(dd > 127) dd = 127; */
-/*   return dd*(d>0?1:-1); */
-/* } */
-/* #endif /1* arm *1/ */
 
 void matrix_scan_keymap(void) {
-  
-/* #ifdef __ARM__ */
-
-/*   if((dx || dy) && since_last > wait_between_moves) { */
-/*     xprintf("%d, %d [%d]\n", (int)dx, (int)dy, (int)since_last); */
-/*     if(IS_LAYER_ON(_LOWER)){ */
-/*       if(dx > 0) { */
-/*         for(int i = 0; i < dx; i++) TAP(KC_RIGHT); */
-/*       } else { */
-/*         dx = -dx; */
-/*         for(int i = 0; i < dx; i++) TAP(KC_LEFT); */
-/*       } */
-/*       if(dy > 0) { */
-/*         for(int i = 0; i < dy; i++) TAP(KC_DOWN); */
-/*       } else { */
-/*         dy = -dy; */
-/*         for(int i = 0; i < dy; i++) TAP(KC_UP); */
-/*       } */
-/*     } else if(IS_LAYER_ON(_RAISE)) { */
-/*       mouse_report.h = dx; */
-/*       mouse_report.v = dy; */
-/*       mouse_report.x = mouse_report.y = 0; */
-/*       host_mouse_send(&mouse_report); */
-/*     } else { */
-/*       if(dx > 0) { */
-/*         mouse_report.x = scale_mouse_delta(dx, iix); */
-/*         iix = 0; */
-/*       } else if(dx < 0) { */
-/*         mouse_report.x = scale_mouse_delta(dx, idx); */
-/*         idx = 0; */
-/*       } else mouse_report.x = 0; */
-
-/*       if(dy > 0) { */
-/*         mouse_report.y = scale_mouse_delta(dy, iiy); */
-/*         iiy = 0; */
-/*       } else if(dy < 0) { */
-/*         mouse_report.y = scale_mouse_delta(dy, idy); */
-/*         idy = 0; */
-/*       } else mouse_report.y = 0; */
-/*       mouse_report.v = mouse_report.h = 0; */
-/*       host_mouse_send(&mouse_report); */
-/*     } */
-/*     dx = 0; */
-/*     dy = 0; */
-/*     since_last = 0; */
-/*   } */ 
-/*   // these are regular enough to use for timing */
-/*   since_last++; */
-/*   iix++; */
-/*   idx++; */
-/*   iiy++; */
-/*   idy++; */
-/* #endif /1* arm *1/ */
-    
   #ifdef AUDIO_ENABLE
     if (muse_mode) {
       if (muse_counter == 0) {
@@ -327,24 +198,4 @@ void matrix_scan_keymap(void) {
     }
   #endif
 }
-
-/*/1** need to reflect mouse buttons in our own mouse tracking too *1/ */
-/*bool process_record_keymap(uint16_t keycode, keyrecord_t *record) { */
-/*#ifdef __arm__ */
-/*  if(keycode == KC_MS_BTN1) { */
-/*    if(record->event.pressed) mouse_report.buttons |= MOUSE_BTN1; */
-/*    else mouse_report.buttons &= ~MOUSE_BTN1; */
-/*  } */
-/*  if(keycode == KC_MS_BTN2) { */
-/*    if(record->event.pressed) mouse_report.buttons |= MOUSE_BTN2; */
-/*    else mouse_report.buttons &= ~MOUSE_BTN2; */
-/*  } */
-/*  if(keycode == KC_MS_BTN3) { */
-/*    if(record->event.pressed) mouse_report.buttons |= MOUSE_BTN3; */
-/*    else mouse_report.buttons &= ~MOUSE_BTN3; */
-/*  } */
-/*#endif /1* arm *1/ */
-/*  // and let this fall through for the normal mousekeys mechanism to handle */
-/*  return true; */
-/*} */
 
