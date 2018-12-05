@@ -9,7 +9,8 @@ static report_mouse_t mouse_report = {};
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     /* {{ KC_A, KC_B, KC_C, KC_D }} */
-    {{ KC_NO, KC_NO, KC_NO, KC_NO }}
+    [0] = {{ KC_NO, KC_NO, KC_NO, KC_NO }},
+    [1] = {{ KC_NO, KC_NO, KC_NO, KC_NO }}
 };
 
 /* bool process_record_user(uint16_t keycode, keyrecord_t *record) { */
@@ -22,6 +23,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 /* 	return false; */
 /* } */
 
+uint8_t vim_cmd_layer(void) { return 1; }
 
 #define pin_count 4
 uint16_t pins_were[pin_count] = { 0, 0, 0, 0 };
@@ -34,7 +36,7 @@ uint16_t ipins_were[ipin_count] = {0};
 uint32_t deltas[ipin_count] = {0};
 bool has_moved = false;
 
-void matrix_init_user() {
+void matrix_init_keymap(void) {
 	for(int i = 0; i < pin_count; i++){
 		setPinInputHigh(pins[i]);
 	}
@@ -48,7 +50,7 @@ void matrix_init_user() {
 }
 #define TAP(kc) do { register_code(kc); unregister_code(kc); } while (0)
 
-void matrix_scan_user() {
+void matrix_scan_keymap(void) {
 	if(has_moved){
 		mouse_report.y += mouse_step*deltas[2];
 		mouse_report.y -= mouse_step*deltas[1];

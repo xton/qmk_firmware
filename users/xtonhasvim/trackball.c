@@ -171,8 +171,6 @@ bool process_record_trackball(uint16_t keycode, keyrecord_t *record) {
 
 #else /* TRACKBALL_ENABLED */
 
-#error "DEBUG: should be enabled now"
-
 /** stubs for when trackball is off */
 void matrix_scan_trackball(void) {}
 void matrix_init_trackball(void) {}
