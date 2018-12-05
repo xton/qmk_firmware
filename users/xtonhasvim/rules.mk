@@ -7,7 +7,7 @@ ifeq ($(strip $(TRACKBALL_ENABLED)), yes)
     ifeq ($(PLATFORM),AVR)
         # nothing yet...
     else
-        OPT_DEFS += -DHAL_USE_EXT=TRUE
+        CFLAGS += -DHAL_USE_EXT=TRUE
     endif
     OPT_DEFS += -DTB_LINE_UP=$(TB_LINE_UP)
     OPT_DEFS += -DTB_LINE_DN=$(TB_LINE_DN)
@@ -17,5 +17,9 @@ ifeq ($(strip $(TRACKBALL_ENABLED)), yes)
     OPT_DEFS += -DTB_PAD_DN=$(TB_PAD_DN)
     OPT_DEFS += -DTB_PAD_LT=$(TB_PAD_LT)
     OPT_DEFS += -DTB_PAD_RT=$(TB_PAD_RT)
+    ifeq ($(strip $(TB_POLLING_ENABLED)), yes)
+      OPT_DEFS += -DTB_POLLING_ENABLED
+    endif
+
 endif
 

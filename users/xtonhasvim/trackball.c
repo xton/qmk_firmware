@@ -61,10 +61,27 @@ static int32_t idy = 0;
 static int32_t since_last = 0;
 static bool has_moved = false;
 
+/** poll the various pins for differences in voltages. 
+ * increment the appropriate delta if any is found 
+ */
+static void poll_pins(void) {
+  for(int i = 0; i < 4; i++){ 
+    uint16_t on = readPin(ipins[i]);
+    if(on != ipins_were[i]) {
+      xprintf("OH SHIT - %d -> %d\n",i, deltas[i]);
+      deltas[i]++;	
+      has_moved=true;
+    }
+    ipins_were[i] = on;
+  }
+}
+
+#ifndef TB_POLLING_ENABLED
+
 #ifdef __arm__
 EXTConfig extConfig = {{{0}}};
 
-void ballMoved(EXTDriver *extp, expchannel_t channel) {
+static void ballMoved(EXTDriver *extp, expchannel_t channel) {
   switch(channel) {
     case TB_LINE_UP: ddy++; break;
     case TB_LINE_DN: diy++; break;
@@ -76,26 +93,18 @@ void ballMoved(EXTDriver *extp, expchannel_t channel) {
 #endif /* __arm__ */
 #ifdef __AVR__
 
-/** not arm (hopefully avr) */
 
 ISR(PCINT0_vect){
-  for(int i = 0; i < 4; i++){ 
-    uint16_t on = readPin(ipins[i]);
-    if(on != ipins_were[i]) {
-      xprintf("OH SHIT - %d -> %d\n",i, deltas[i]);
-      deltas[i]++;	
-      has_moved=true;
-    }
-    ipins_were[i] = on;
-
-  }
-
+  poll_pins();
 }
 
 #endif /* __AVR__ */
 
+#endif /* !TB_POLLING_ENABLED */
+
 void matrix_init_trackball(void) {
 
+#ifndef TB_POLLING_ENABLED
 #ifdef __arm__
 
 	osalSysLock();
@@ -135,6 +144,7 @@ void matrix_init_trackball(void) {
 	// turn on PC int
 	PCICR |= (1 << PCIE0);
 #endif /* __AVR__ */
+#endif /* !TB_POLLING_ENABLED */
 }
 
 
@@ -150,6 +160,9 @@ int8_t scale_mouse_delta(int32_t d, uint32_t sl) {
 }
 
 void matrix_scan_trackball(void) {
+#ifdef TB_POLLING_ENABLED
+  poll_pins();
+#endif 
   if(has_moved && since_last > wait_between_moves) {
     xprintf("%d, %d [%d]\n", (int)dx, (int)dy, (int)since_last);
     if(tb_ball_mode == TB_MODE_ARROW){
