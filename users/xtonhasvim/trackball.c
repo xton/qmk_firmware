@@ -46,10 +46,10 @@ static uint16_t ipins[] = {
 static uint32_t ipins_were[4] = { 0, 0, 0, 0 };
 
 static uint32_t deltas[4] = {0, 0, 0, 0};
-#define dix deltas[0]
-#define ddx deltas[1]
-#define diy deltas[2]
-#define ddy deltas[3]
+#define ddy deltas[0]
+#define diy deltas[1]
+#define ddx deltas[2]
+#define dix deltas[3]
 #define dx (dix - ddx)
 #define dy (diy - ddy)
 
@@ -150,8 +150,8 @@ void matrix_scan_trackball(void) {
     xprintf("%d, %d [%d]\n", (int)dx, (int)dy, (int)since_last);
     if(tb_ball_mode == TB_MODE_ARROW){
       /** arrow keys */
-      for(int i = 0; i < dix; i++) TAP(KC_UP);
-      for(int i = 0; i < ddx; i++) TAP(KC_DOWN);
+      for(int i = 0; i < ddx; i++) TAP(KC_UP);
+      for(int i = 0; i < dix; i++) TAP(KC_DOWN);
       for(int i = 0; i < diy; i++) TAP(KC_LEFT);
       for(int i = 0; i < ddy; i++) TAP(KC_RIGHT);
     } else if(tb_ball_mode == TB_MODE_SCROLL) {
@@ -182,6 +182,7 @@ void matrix_scan_trackball(void) {
     }
     dix=ddx=diy=ddy=0;
     since_last = 0;
+    has_moved = false;
   } 
   // these are regular enough to use for timing
   since_last++;
