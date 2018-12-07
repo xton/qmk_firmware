@@ -4,11 +4,6 @@ SRC += trackball.c
 
 ifeq ($(strip $(TRACKBALL_ENABLED)), yes)
     OPT_DEFS += -DTRACKBALL_ENABLED
-    ifeq ($(PLATFORM),AVR)
-        # nothing yet...
-    else
-        CFLAGS += -DHAL_USE_EXT=TRUE
-    endif
     OPT_DEFS += -DTB_LINE_UP=$(TB_LINE_UP)
     OPT_DEFS += -DTB_LINE_DN=$(TB_LINE_DN)
     OPT_DEFS += -DTB_LINE_LT=$(TB_LINE_LT)
@@ -19,6 +14,11 @@ ifeq ($(strip $(TRACKBALL_ENABLED)), yes)
     OPT_DEFS += -DTB_PAD_RT=$(TB_PAD_RT)
     ifeq ($(strip $(TB_INTERRUPT_ENABLED)), yes)
       OPT_DEFS += -DTB_INTERRUPT_ENABLED
+      ifeq ($(PLATFORM),AVR)
+          # nothing yet...
+      else
+          CFLAGS += -DHAL_USE_EXT=TRUE
+      endif
     endif
 
 endif
