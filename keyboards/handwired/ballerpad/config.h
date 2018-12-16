@@ -29,11 +29,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define DESCRIPTION     test matrix for integrated trackball
 
 /* key matrix size */
-#define MATRIX_ROWS 3
+#define MATRIX_ROWS 2
 #define MATRIX_COLS 4
 
 #define MATRIX_COL_PINS {  F4, F5, F6, F7 }
-#define MATRIX_ROW_PINS {  C6, D4, D0 }
+#define MATRIX_ROW_PINS {  C6, D4 } // D0
 #define UNUSED_PINS
 
 /* define if matrix has ghost */

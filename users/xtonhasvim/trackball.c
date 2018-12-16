@@ -22,6 +22,7 @@
 #include <mousekey.h>
 #include "xtonhasvim.h"
 #include "trackball.h"
+#include "wait.h"
 
 #ifdef __arm__
 #include "hal.h"
@@ -61,6 +62,24 @@ static int32_t idy = 0;
 static int32_t since_last = 0;
 static bool has_moved = false;
 
+#ifdef TB_USE_MATRIX_ROW
+static void poll_column_pins(void){
+  writePinHigh(TB_MATRIX_ROW);
+  wait_us(2000);
+  for(int i = 0; i < 4; i++){ 
+    uint16_t on = readPin(ipins[i]);
+    if(on != ipins_were[i]) {
+      xprintf("OH SHIRT - %d -> %d\n",i, deltas[i]);
+      deltas[i]++;	
+      has_moved=true;
+    }
+    ipins_were[i] = on;
+  }
+  writePinLow(TB_MATRIX_ROW);
+  wait_us(2000);
+
+}
+#else 
 /** poll the various pins for differences in voltages. 
  * increment the appropriate delta if any is found 
  */
@@ -75,6 +94,7 @@ static void poll_pins(void) {
     ipins_were[i] = on;
   }
 }
+#endif /* TB_USE_MATRIX_ROW */
 
 #ifdef TB_INTERRUPT_ENABLED
 
@@ -103,6 +123,9 @@ ISR(PCINT0_vect){
 #endif /* TB_INTERRUPT_ENABLED */
 
 void matrix_init_trackball(void) {
+#ifdef TB_USE_MATRIX_ROW
+  setPinOutput(TB_MATRIX_ROW);
+#endif
 
 #ifdef TB_INTERRUPT_ENABLED
 #ifdef __arm__
@@ -161,7 +184,11 @@ int8_t scale_mouse_delta(int32_t d, uint32_t sl) {
 
 void matrix_scan_trackball(void) {
 #ifndef TB_INTERRUPT_ENABLED
+#ifdef TB_USE_MATRIX_ROW
+  poll_column_pins();
+#else
   poll_pins();
+#endif
 #endif 
   if(has_moved && since_last > wait_between_moves) {
     xprintf("%d, %d [%d]\n", (int)dx, (int)dy, (int)since_last);

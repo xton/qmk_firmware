@@ -3,6 +3,9 @@ SRC += fancylighting.c
 SRC += trackball.c
 
 ifeq ($(strip $(TRACKBALL_ENABLED)), yes)
+    ifeq ($(strip $(TB_USE_MATRIX_ROW)), yes)
+       OPT_DEFS += -DTB_MATRIX_ROW=$(TB_MATRIX_ROW) -DTB_USE_MATRIX_ROW
+    endif
     OPT_DEFS += -DTRACKBALL_ENABLED
     OPT_DEFS += -DTB_LINE_UP=$(TB_LINE_UP)
     OPT_DEFS += -DTB_LINE_DN=$(TB_LINE_DN)
