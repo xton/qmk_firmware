@@ -16,7 +16,8 @@
 
 #pragma once
 
-#include "config_common.h"
+/* #include "config_common.h" */
+/* #include "../../config.h" */
 
 /* USB Device descriptor parameter */
 /* #define VENDOR_ID       0xFEED */
@@ -27,15 +28,22 @@
 /* #define DESCRIPTION     A compact ortholinear keyboard */
 
 /* key matrix size */
+#undef MATRIX_ROWS
+#undef MATRIX_COLS
+
+#undef MATRIX_ROW_PINS 
+#undef MATRIX_COL_PINS
+
+
 #define MATRIX_ROWS 6
 #define MATRIX_COLS 17 
 
-#define MATRIX_ROW_PINS { B9 }
-#define MATRIX_COL_PINS { B0 }
+#define MATRIX_ROW_PINS { B0, B1, B2, B3, B4, B5 }
+#define MATRIX_COL_PINS { B12, B11, B10, B9, B15, B14, B13, B8, A0, A1, A2, A15, A8, A7, A6, A5, A4 }
 
 
 /* Debounce reduces chatter (unintended double-presses) - set 0 if debouncing is not needed */
-#define DEBOUNCE 6
+/* #define DEBOUNCE 6 */
 
 /* Mechanical locking support. Use KC_LCAP, KC_LNUM or KC_LSCR instead in keymap */
 //#define LOCKING_SUPPORT_ENABLE
@@ -64,9 +72,9 @@
 //#define FORCE_NKRO
 
 /* key combination for magic key command */
-#define IS_COMMAND() ( \
-  keyboard_report->mods == (MOD_BIT(KC_LSHIFT) | MOD_BIT(KC_RSHIFT)) \
-)
+/* #define IS_COMMAND() ( \ */
+/*   keyboard_report->mods == (MOD_BIT(KC_LSHIFT) | MOD_BIT(KC_RSHIFT)) \ */
+/* ) */
 
 /*
  * Feature disable options
