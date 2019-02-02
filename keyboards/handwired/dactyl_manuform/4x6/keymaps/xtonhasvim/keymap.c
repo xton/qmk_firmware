@@ -25,7 +25,6 @@ enum layers {
   _RAISE,
   _ADJUST,
   _MOVE,
-  _MOUSE,
   _CMD
 };
 
@@ -82,9 +81,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                             _______,_______,    _______,RESET                                    \
 ),
 [_ADJUST] = LAYOUT_xton_wired_wrong(
-  BL_INC,  X_____X,    X_____X, X_____X, X_____X, X_____X, X_____X, X_____X, X_____X, X_____X, X_____X,     RGB_MODE_PLAIN, \
-  BL_DEC,  MU_TOG,     MU_MOD,  MUV_DE,  MUV_IN,  X_____X, X_____X, X_____X, X_____X, X_____X, X_____X,     RGB_MODE_REVERSE, \
-  BL_STEP, CK_TOGG,    CK_DOWN, CK_UP,   X_____X, X_____X, X_____X, KC_MNXT, KC_VOLD, KC_VOLU, KC_MPLY,     RGB_MODE_FORWARD, \
+  X_____X,  RESET,   DEBUG,   X_____X, X_____X, X_____X, X_____X, X_____X, X_____X, X_____X, RGB_TOG,     RGB_MODE_PLAIN, \
+  X_____X,  X_____X, X_____X, X_____X, X_____X, X_____X, X_____X, X_____X, X_____X, X_____X, X_____X,     RGB_MODE_REVERSE, \
+  X_____X,  X_____X, X_____X, X_____X, X_____X, X_____X, X_____X, KC_MNXT, KC_VOLD, KC_VOLU, KC_MPLY,     RGB_MODE_FORWARD, \
                                     _______,  _______,             _______, _______,                                     \
                                             _______,_______,    _______,_______,                                   \
                                             _______,_______,    _______,_______,                                   \

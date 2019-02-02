@@ -26,9 +26,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 /* Select hand configuration */
 
-// #define MASTER_LEFT
+#define MASTER_LEFT
 // #define MASTER_RIGHT
-#define EE_HANDS
+// #define EE_HANDS
 
 
 #define PERMISSIVE_HOLD
@@ -56,3 +56,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         { R40, R41, R42, R43, KC_NO, KC_NO } \
 \
    }
+
+
+#undef RGB_DI_PIN
+#define RGB_DI_PIN C7 
+#undef RGBLED_NUM
+#define RGBLED_NUM 44 
+#define RGBLIGHT_ANIMATIONS
+
+
+
