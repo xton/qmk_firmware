@@ -435,8 +435,8 @@ bool process_record_quantum(keyrecord_t *record) {
     if (!record->event.pressed) {
     #endif
       rgblight_decrease_val();
-      #ifdef SPLIT_KEYBOARD
-          RGB_DIRTY = true;
+      #ifdef split_keyboard
+          rgb_dirty = true;
       #endif
     }
     return false;
@@ -534,6 +534,9 @@ bool process_record_quantum(keyrecord_t *record) {
       } else {
         rgblight_mode(RGBLIGHT_MODE_STATIC_GRADIENT);
       }
+      #ifdef SPLIT_KEYBOARD
+          RGB_DIRTY = true;
+      #endif
     }
   #endif
     return false;

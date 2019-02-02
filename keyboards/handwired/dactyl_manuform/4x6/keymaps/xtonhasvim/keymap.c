@@ -81,7 +81,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                             _______,_______,    _______,RESET                                    \
 ),
 [_ADJUST] = LAYOUT_xton_wired_wrong(
-  X_____X,  RESET,   DEBUG,   X_____X, X_____X, X_____X, X_____X, X_____X, X_____X, X_____X, RGB_TOG,     RGB_MODE_PLAIN, \
+  X_____X,  RESET,   DEBUG,    RGB_TOG, RGB_MOD, RGB_HUI, RGB_HUD, RGB_SAI, RGB_SAD, RGB_VAI, RGB_VAD,  RGB_MODE_PLAIN, \
   X_____X,  X_____X, X_____X, X_____X, X_____X, X_____X, X_____X, X_____X, X_____X, X_____X, X_____X,     RGB_MODE_REVERSE, \
   X_____X,  X_____X, X_____X, X_____X, X_____X, X_____X, X_____X, KC_MNXT, KC_VOLD, KC_VOLU, KC_MPLY,     RGB_MODE_FORWARD, \
                                     _______,  _______,             _______, _______,                                     \
@@ -113,3 +113,12 @@ extern uint8_t vim_cmd_layer(void) { return _CMD; }
 uint32_t layer_state_set_user(uint32_t state) {
   return update_tri_layer_state(state, _RAISE, _LOWER, _ADJUST);
 }
+
+
+void matrix_slave_scan_user(void) {
+  #if defined(RGBLIGHT_ANIMATIONS) & defined(RGBLIGHT_ENABLE)
+  // some WIERD behavior happens with this on
+//    rgblight_task();
+  #endif
+}
+
