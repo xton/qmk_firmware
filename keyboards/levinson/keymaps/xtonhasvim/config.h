@@ -32,4 +32,5 @@
 #define PERMISSIVE_HOLD
 
 // where is the cord plugged in?
-#define MASTER_LEFT
+/* #define MASTER_LEFT */
+#define MASTER_RIGHT
