@@ -89,25 +89,25 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   ),
   [_RAISE] = LAYOUT_kc( \
   //,-----------------------------------------.                ,-----------------------------------------.
-        GRV,    F1,    F2,    F3,    F4,    F5,                     F6,    F7,    F8,    F9,   F10,  BSPC,\
+        GRV,    F1,    F2,    F3,    F4,    F5,                  XXXXX, MINS,    EQL,  LBRC,  RBRC,  BSPC,\
   //|------+------+------+------+------+------|                |------+------+------+------+------+------|
-       TILD,     1,     2,     3,     4,     5,                      6,     7,     8,     9,     0,  PIPE,\
+       TILD,     1,     2,     3,     4,     5,                      6,     7,     8,     9,     0,  BSLS,\
   //|------+------+------+------+------+------|                |------+------+------+------+------+------|
-      CTLTB,   F11,   F12,   F13,   F14,   F15,                    F16,   F17,   F18,   F19,   F20,  RSFT,\
+       LSFT, XXXXX, XXXXX, XXXXX, XXXXX, XXXXX,                   LEFT,  DOWN,    UP,  RGHT, XXXXX,   ENT,\
   //|------+------+------+------+------+------+------|  |------+------+------+------+------+------+------|
-                                  GUIEI, LOWER,   ENT,      SPC, RAISE, ALTKN \
+                                   LALT, LOWER, XXXXX,     LGUI, RAISE,  LALT \
                               //`--------------------'  `--------------------'
   ),
 
   [_ADJUST] = LAYOUT_kc( \
   //,-----------------------------------------.                ,-----------------------------------------.
-        RST,  LRST, XXXXX, XXXXX, XXXXX, ERST,                    MNXT,  MPRV,  MFFD,  MRWD, XXXXX,  EJCT,\
+       LRST,   RST, XXXXX, XXXXX, XXXXX, ERST,                    MNXT,  MPRV,  MFFD,  MRWD, XXXXX, XXXXX,\
   //|------+------+------+------+------+------|                |------+------+------+------+------+------|
-       LTOG,  LHUI,  LSAI,  LVAI,  PGUP, HOME,                    LEFT,  DOWN,    UP, RIGHT, XXXXX, XXXXX,\
+       LTOG,  LHUI,  LSAI,  LVAI, XXXXX, XXXXX,                  XXXXX, XXXXX, XXXXX, XXXXX, XXXXX, XXXXX,\
   //|------+------+------+------+------+------|                |------+------+------+------+------+------|
-       LMOD,  LHUD,  LSAD,  LVAD,  PGDN,  END,                    BRID,  BRIU,  VOLD,  VOLU,  MUTE,  MPLY,\
+       LMOD,  LHUD,  LSAD,  LVAD, XXXXX, XXXXX,                   BRID,  BRIU,  VOLD,  VOLU,  MUTE,  MPLY,\
   //|------+------+------+------+------+------+------|  |------+------+------+------+------+------+------|
-                                  GUIEI, LOWER,   ENT,      SPC, RAISE, ALTKN \
+                                  XXXXX, LOWER, XXXXX,    XXXXX, RAISE, XXXXX \
                               //`--------------------'  `--------------------'
   )
 };
