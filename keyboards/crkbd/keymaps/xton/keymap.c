@@ -63,6 +63,11 @@ enum macro_keycodes {
 #define KC_NFOR  LGUI(LSFT(KC_RBRC)) 
 #define KC_RTAB  LGUI(KC_RBRC)
 
+#define KC_ALEFT LALT(KC_LEFT)
+#define KC_ARITE LALT(KC_RIGHT)
+#define KC_AUP LALT(KC_UP)
+#define KC_ADOWN LALT(KC_DOWN)
+
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [_QWERTY] = LAYOUT_kc( \
   //,-----------------------------------------.                ,-----------------------------------------.
@@ -78,13 +83,13 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   [_LOWER] = LAYOUT_kc( \
   //,-----------------------------------------.                ,-----------------------------------------.
-       TILD, XXXXX, XXXXX, XXXXX, XXXXX, XXXXX,                  XXXXX,  MINS,   EQL,  LCBR,  RCBR,  BSPC,\
+       TILD, XXXXX, XXXXX, XXXXX, XXXXX, XXXXX,                  XXXXX,  UNDS,  PLUS,  LCBR,  RCBR,  BSPC,\
   //|------+------+------+------+------+------|                |------+------+------+------+------+------|
         GRV,  EXLM,    AT,  HASH,   DLR,  PERC,                   CIRC,  AMPR,  ASTR,  LPRN,  RPRN,  PIPE,\
   //|------+------+------+------+------+------|                |------+------+------+------+------+------|
-      XXXXX, XXXXX,  LTAB,  NBAK,  NFOR,  RTAB,                   HOME,  PGDN,  PGUP,   END, XXXXX,   ENT,\
+      _____, XXXXX,  LTAB,  NBAK,  NFOR,  RTAB,                   HOME,  PGDN,  PGUP,   END, XXXXX,   ENT,\
   //|------+------+------+------+------+------+------|  |------+------+------+------+------+------+------|
-                                   LGUI, LOWER,  LALT,      SPC, RAISE, _____ \
+                                  _____, LOWER,  LALT,    _____, RAISE, _____ \
                               //`--------------------'  `--------------------'
   ),
   [_RAISE] = LAYOUT_kc( \
@@ -93,21 +98,21 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|------+------+------+------+------+------|                |------+------+------+------+------+------|
        TILD,     1,     2,     3,     4,     5,                      6,     7,     8,     9,     0,  BSLS,\
   //|------+------+------+------+------+------|                |------+------+------+------+------+------|
-       LSFT, XXXXX, XXXXX, XXXXX, XXXXX, XXXXX,                   LEFT,  DOWN,    UP,  RGHT, XXXXX,   ENT,\
+      _____, XXXXX, XXXXX, XXXXX, XXXXX, XXXXX,                   LEFT,  DOWN,    UP,  RGHT, XXXXX,   ENT,\
   //|------+------+------+------+------+------+------|  |------+------+------+------+------+------+------|
-                                   LALT, LOWER, XXXXX,     LGUI, RAISE,  LALT \
+                                  _____, LOWER, _____,     LGUI, RAISE, _____ \
                               //`--------------------'  `--------------------'
   ),
 
   [_ADJUST] = LAYOUT_kc( \
   //,-----------------------------------------.                ,-----------------------------------------.
-       LRST,   RST, XXXXX, XXXXX, XXXXX, ERST,                    MNXT,  MPRV,  MFFD,  MRWD, XXXXX, XXXXX,\
+       LRST,   RST,  LMOD, XXXXX, XXXXX, ERST,                    MNXT,  MPRV,  MFFD,  MRWD, XXXXX, XXXXX,\
   //|------+------+------+------+------+------|                |------+------+------+------+------+------|
        LTOG,  LHUI,  LSAI,  LVAI, XXXXX, XXXXX,                  XXXXX, XXXXX, XXXXX, XXXXX, XXXXX, XXXXX,\
   //|------+------+------+------+------+------|                |------+------+------+------+------+------|
-       LMOD,  LHUD,  LSAD,  LVAD, XXXXX, XXXXX,                   BRID,  BRIU,  VOLD,  VOLU,  MUTE,  MPLY,\
+      _____,  LHUD,  LSAD,  LVAD, XXXXX, XXXXX,                  ALEFT, ADOWN,   AUP, ARITE, XXXXX, XXXXX,\
   //|------+------+------+------+------+------+------|  |------+------+------+------+------+------+------|
-                                  XXXXX, LOWER, XXXXX,    XXXXX, RAISE, XXXXX \
+                                  _____, LOWER, _____,    XXXXX, RAISE, XXXXX \
                               //`--------------------'  `--------------------'
   )
 };
