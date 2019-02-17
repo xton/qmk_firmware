@@ -7,18 +7,6 @@ extern keymap_config_t keymap_config;
 
 #define ____ KC_TRNS
 
-#define SFT_ESC  SFT_T(KC_ESC)
-#define CTL_BSPC CTL_T(KC_BSPC)
-#define ALT_SPC  ALT_T(KC_SPC)
-#define SFT_ENT  SFT_T(KC_ENT)
-
-#define KC_ML KC_MS_LEFT
-#define KC_MR KC_MS_RIGHT
-#define KC_MU KC_MS_UP
-#define KC_MD KC_MS_DOWN
-#define KC_MB1 KC_MS_BTN1
-#define KC_MB2 KC_MS_BTN1
-
 enum layers {
   _QWERTY,
   _LOWER,
@@ -55,35 +43,35 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     KC_TAB,  KC_Q,  KC_W,   KC_E,   KC_R,   KC_T,               KC_Y,   KC_U,   KC_I,   KC_O,   KC_P,   KC_BSPC,   \
     LCTL_T(KC_ESC),  KC_A,  KC_S,   KC_D,   KC_F,   KC_G,               KC_H,   KC_J,   KC_K,   KC_L,   LT(_MOVE,KC_SCLN),KC_QUOT,   \
     KC_LSFT, KC_Z,  KC_X,   KC_C,   KC_V,   KC_B,               KC_N,   KC_M,   KC_COMM,KC_DOT, KC_SLSH,RSFT_T(KC_ENT), \
-                    KC_LALT,KC_LGUI,                                            KC_RGUI,KC_RALT,                    \
-                                    MO(_LOWER),  MO(_MOVE),             KC_SPC, MO(_RAISE),                                     \
-                                    MO(_MOVE), LSFT(KC_LALT),            VIM_START, MO(_MOVE),                                    \
+                    KC_MINS,KC_EQL,                                             KC_LBRC,KC_RBRC,                    \
+                                    MO(_LOWER), LSFT(KC_LALT),   KC_SPC, MO(_RAISE),                                \
+                                    MO(_MOVE), KC_LGUI,    KC_LALT, VIM_START,                                 \
                                     KC_LALT,KC_LGUI,             KC_RGUI,KC_RALT                                    \
 ),
 
 [_LOWER] = LAYOUT_xton_wired_wrong(
-  KC_TILD, KC_F1,       KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,   KC_UNDS,    KC_PLUS, KC_LCBR, KC_RCBR,     KC_BSPC, \
-  KC_DEL,  KC_EXLM,     KC_AT,   KC_HASH, KC_DLR,  KC_PERC, KC_CIRC, KC_AMPR,    KC_ASTR, KC_LPRN, KC_RPRN,     KC_PIPE, \
-  _______, KC_F7,       KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,  X_____X,    X_____X, X_____X, X_____X,     FIREY_RETURN, \
-                                   _______,  _______,             _______, MO(_RAISE),                                     \
+  KC_TILD, KC_EXLM, KC_AT,   KC_HASH, KC_DLR,  KC_PERC, KC_CIRC, KC_AMPR,    KC_ASTR, KC_LPRN, KC_RPRN, KC_BSPC, \
+  KC_DEL,  X_____X, LGUI(KC_LBRC), LGUI(LSFT(KC_LBRC)), LGUI(LSFT(KC_RBRC)), LGUI(KC_RBRC), KC_HOME, KC_PGDN, KC_PGUP, KC_END, X_____X,     KC_PIPE, \
+  _______, X_____X, X_____X, X_____X, X_____X, X_____X, X_____X,  KC_UNDS,   KC_PLUS, KC_LCBR, KC_RCBR,     FIREY_RETURN, \
+                                   _______,  _______,             _______, _______,                                     \
                                             _______,_______,    _______,_______,                                   \
-                                            _______,_______,    _______,_______,                                   \
-                                            RESET,_______,    _______,_______                                    \
+                                            _______, KC_LALT,    _______,_______,                                   \
+                                            RESET,  _______,    _______,_______                                    \
 ),
 
 [_RAISE] = LAYOUT_xton_wired_wrong(
-  KC_GRV,  X_____X,     X_____X, X_____X, X_____X,    X_____X, X_____X, KC_MINS, KC_EQL,  KC_LBRC, KC_RBRC,     KC_BSPC, \
-  KC_DEL,  KC_1,        KC_2,    KC_3,    KC_4,       KC_5,    KC_6,    KC_7,    KC_8,    KC_9,    KC_0,        KC_BSLS, \
-  _______, X_____X,     X_____X, X_____X, X_____X,    X_____X, X_____X, X_____X, X_____X, X_____X, X_____X,     FIREY_RETURN, \
-                                    MO(_LOWER),  _______,             _______, _______,                                     \
+  KC_GRV, KC_1,        KC_2,    KC_3,    KC_4,       KC_5,    KC_6,    KC_7,    KC_8,    KC_9,    KC_0,        KC_BSPC,  \
+  KC_DEL,  X_____X,     X_____X, X_____X, X_____X,    X_____X, KC_LEFT, KC_DOWN, KC_UP,   KC_RGHT,X_____X,   KC_BSLS,\
+  _______, X_____X,     X_____X, X_____X, X_____X,    X_____X, X_____X, KC_MINS, KC_EQL,  KC_LBRC, KC_RBRC,      FIREY_RETURN, \
+                                      _______, _______,             _______, _______,                                     \
                                             _______,_______,    _______,_______,                                   \
-                                            _______,_______,    _______,_______,                                   \
+                                            _______,_______,    KC_LGUI,_______,                                   \
                                             _______,_______,    _______,RESET                                    \
 ),
 [_ADJUST] = LAYOUT_xton_wired_wrong(
   X_____X,  RESET,   DEBUG,    RGB_TOG, RGB_MOD, RGB_HUI, RGB_HUD, RGB_SAI, RGB_SAD, RGB_VAI, RGB_VAD,  RGB_MODE_PLAIN, \
-  X_____X,  X_____X, X_____X, X_____X, X_____X, X_____X, X_____X, X_____X, X_____X, X_____X, X_____X,     RGB_MODE_REVERSE, \
-  X_____X,  X_____X, X_____X, X_____X, X_____X, X_____X, X_____X, KC_MNXT, KC_VOLD, KC_VOLU, KC_MPLY,     RGB_MODE_FORWARD, \
+  X_____X,  X_____X, X_____X, X_____X, X_____X, X_____X, LALT(KC_LEFT), LALT(KC_DOWN), LALT(KC_UP), LALT(KC_RIGHT), X_____X,     RGB_MODE_REVERSE, \
+  _______,  X_____X, X_____X, X_____X, X_____X, X_____X, X_____X, KC_MNXT, KC_VOLD, KC_VOLU, KC_MPLY,     RGB_MODE_FORWARD, \
                                     _______,  _______,             _______, _______,                                     \
                                             _______,_______,    _______,_______,                                   \
                                             _______,_______,    _______,_______,                                   \
