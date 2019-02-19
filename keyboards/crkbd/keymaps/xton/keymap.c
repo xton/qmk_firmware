@@ -147,11 +147,34 @@ const char *read_logo(void);
 void set_keylog(uint16_t keycode, keyrecord_t *record);
 const char *read_keylog(void);
 const char *read_keylogs(void);
+const char *read_rgb_info(void);
 
 // const char *read_mode_icon(bool swap);
 // const char *read_host_led_state(void);
 // void set_timelog(void);
 // const char *read_timelog(void);
+
+
+/** stolen from drashna */
+char modifier_state_str[24];
+#define MODS_SHIFT_MASK  (MOD_BIT(KC_LSHIFT)|MOD_BIT(KC_RSHIFT))
+#define MODS_CTRL_MASK  (MOD_BIT(KC_LCTL)|MOD_BIT(KC_RCTRL))
+#define MODS_ALT_MASK  (MOD_BIT(KC_LALT)|MOD_BIT(KC_RALT))
+#define MODS_GUI_MASK  (MOD_BIT(KC_LGUI)|MOD_BIT(KC_RGUI))
+
+const char* read_modifier_state(void) {
+  uint8_t modifiers = get_mods();
+  uint8_t one_shot = get_oneshot_mods();
+
+  snprintf(modifier_state_str, sizeof(modifier_state_str), "Mods:%s %s %s %s",
+    (modifiers & MODS_CTRL_MASK || one_shot & MODS_CTRL_MASK) ? "CTL" : "   ",
+    (modifiers & MODS_GUI_MASK || one_shot & MODS_GUI_MASK) ? "GUI" : "   ",
+    (modifiers & MODS_ALT_MASK || one_shot & MODS_ALT_MASK) ? "ALT" : "   ",
+    (modifiers & MODS_SHIFT_MASK || one_shot & MODS_SHIFT_MASK) ? "SFT" : "   "
+  );
+
+  return modifier_state_str;
+}
 
 void matrix_scan_user(void) {
    iota_gfx_task();
@@ -162,15 +185,17 @@ void matrix_render_user(struct CharacterMatrix *matrix) {
     // If you want to change the display of OLED, you need to change here
     matrix_write_ln(matrix, read_layer_state());
     matrix_write_ln(matrix, read_keylog());
-    matrix_write_ln(matrix, read_keylogs());
+    matrix_write_ln(matrix, read_rgb_info());
+    matrix_write(matrix, read_modifier_state());
+    /* matrix_write_ln(matrix, read_keylogs()); */
     //matrix_write_ln(matrix, read_mode_icon(keymap_config.swap_lalt_lgui));
     //matrix_write_ln(matrix, read_host_led_state());
     //matrix_write_ln(matrix, read_timelog());
   } else {
-    matrix_write_ln(matrix, read_layer_state());
-    matrix_write_ln(matrix, read_keylog());
-    matrix_write_ln(matrix, read_keylogs());
-    //matrix_write(matrix, read_logo());
+    /* matrix_write_ln(matrix, read_layer_state()); */
+    /* matrix_write_ln(matrix, read_keylog()); */
+    /* matrix_write_ln(matrix, read_keylogs()); */
+    matrix_write(matrix, read_logo());
   }
 }
 
