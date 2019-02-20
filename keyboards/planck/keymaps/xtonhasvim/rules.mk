@@ -1,7 +1,7 @@
 SRC += muse.c
 
 
-TRACKBALL_ENABLED = yes 
+TRACKBALL_ENABLED = no 
 
 # the line for each direction (numeric part of pin)
 TB_LINE_UP = 8
@@ -18,4 +18,4 @@ TB_PAD_RT = B
 
 
 #OPT_DEFS += -DHAL_USE_EXT=TRUE
-CFLAGS += -DHAL_USE_EXT=TRUE
+# CFLAGS += -DHAL_USE_EXT=TRUE
