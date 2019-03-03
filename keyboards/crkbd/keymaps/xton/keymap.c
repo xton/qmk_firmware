@@ -83,22 +83,22 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   [_LOWER] = LAYOUT_kc( \
   //,-----------------------------------------.                ,-----------------------------------------.
-       TILD, XXXXX, XXXXX, XXXXX, XXXXX, XXXXX,                  XXXXX,  UNDS,  PLUS,  LCBR,  RCBR,  BSPC,\
+       TILD,  EXLM,    AT,  HASH,   DLR,  PERC,                   CIRC,  AMPR,  ASTR,  LPRN,  RPRN,  BSPC,\
   //|------+------+------+------+------+------|                |------+------+------+------+------+------|
-        GRV,  EXLM,    AT,  HASH,   DLR,  PERC,                   CIRC,  AMPR,  ASTR,  LPRN,  RPRN,  PIPE,\
+        GRV, XXXXX,  LTAB,  NBAK,  NFOR,  RTAB,                   HOME,  PGDN,  PGUP,   END, XXXXX,  PIPE,\
   //|------+------+------+------+------+------|                |------+------+------+------+------+------|
-      _____, XXXXX,  LTAB,  NBAK,  NFOR,  RTAB,                   HOME,  PGDN,  PGUP,   END, XXXXX,   ENT,\
+      _____, XXXXX, XXXXX, XXXXX, XXXXX, XXXXX,                  XXXXX,  UNDS,  PLUS,  LCBR,  RCBR,   ENT,\
   //|------+------+------+------+------+------+------|  |------+------+------+------+------+------+------|
                                   _____, LOWER,  LALT,    _____, RAISE, _____ \
                               //`--------------------'  `--------------------'
   ),
   [_RAISE] = LAYOUT_kc( \
   //,-----------------------------------------.                ,-----------------------------------------.
-        GRV,    F1,    F2,    F3,    F4,    F5,                  XXXXX, MINS,    EQL,  LBRC,  RBRC,  BSPC,\
+        GRV,     1,     2,     3,     4,     5,                      6,     7,     8,     9,     0,  BSPC,\
   //|------+------+------+------+------+------|                |------+------+------+------+------+------|
-       TILD,     1,     2,     3,     4,     5,                      6,     7,     8,     9,     0,  BSLS,\
+       TILD, XXXXX, XXXXX, XXXXX, XXXXX, XXXXX,                   LEFT,  DOWN,    UP,  RGHT, XXXXX,  BSLS,\
   //|------+------+------+------+------+------|                |------+------+------+------+------+------|
-      _____, XXXXX, XXXXX, XXXXX, XXXXX, XXXXX,                   LEFT,  DOWN,    UP,  RGHT, XXXXX,   ENT,\
+      _____,    F1,    F2,    F3,    F4,    F5,                  XXXXX, MINS,    EQL,  LBRC,  RBRC,   ENT,\
   //|------+------+------+------+------+------+------|  |------+------+------+------+------+------+------|
                                   _____, LOWER, _____,     LGUI, RAISE, _____ \
                               //`--------------------'  `--------------------'
