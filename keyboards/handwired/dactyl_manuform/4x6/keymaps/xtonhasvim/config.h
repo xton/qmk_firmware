@@ -26,8 +26,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 /* Select hand configuration */
 
-#define MASTER_LEFT
-// #define MASTER_RIGHT
+// #define MASTER_LEFT
+#define MASTER_RIGHT
 // #define EE_HANDS
 
 
@@ -76,4 +76,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /* #define RGBLIGHT_EFFECT_RGB_TEST */
 /* #define RGBLIGHT_EFFECT_ALTERNATING */
 
+
+#define TRACKBALL_ENABLED
+
+#define TB_PAD_UP F
+#define TB_LINE_UP 6
+
+#define TB_PAD_DN F
+#define TB_LINE_DN 4
+
+#define TB_PAD_LT F
+#define TB_LINE_LT 5
+
+#define TB_PAD_RT F
+#define TB_LINE_RT 1
 

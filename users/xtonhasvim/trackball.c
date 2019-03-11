@@ -167,10 +167,26 @@ void matrix_init_trackball(void) {
 	// turn on PC int
 	PCICR |= (1 << PCIE0);
 #endif /* __AVR__ */
+#else
+  // it's not entirely clear that this does anything...
+	for(int i = 0; i < 4; i++){
+		setPinInput(ipins[i]);
+	}
 #endif /* TB_INTERRUPT_ENABLED */
 }
 
-
+#ifndef TB_LOW_SENSITIVITY
+int8_t scale_mouse_delta(int32_t d, uint32_t sl) {
+  int32_t scale = 5;
+  if(sl < 5) scale = 50;
+  else if (sl < 15) scale = 25;
+  else if (sl < 40) scale = 15;
+  else if (sl < 100) scale = 7;
+  int32_t dd = scale*d;
+  if(dd > 127) dd = 127;
+  return dd;
+}
+#else 
 int8_t scale_mouse_delta(int32_t d, uint32_t sl) {
   int32_t scale = 10;
   if(sl < 20) scale = 100;
@@ -181,6 +197,7 @@ int8_t scale_mouse_delta(int32_t d, uint32_t sl) {
   if(dd > 127) dd = 127;
   return dd*(d>0?1:-1);
 }
+#endif
 
 void matrix_scan_trackball(void) {
 #ifndef TB_INTERRUPT_ENABLED
