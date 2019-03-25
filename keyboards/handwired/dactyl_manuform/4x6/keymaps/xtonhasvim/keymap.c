@@ -1,5 +1,6 @@
 #include QMK_KEYBOARD_H
 #include "xtonhasvim.h"
+#include "trackball.h"
 
 extern keymap_config_t keymap_config;
 
@@ -45,8 +46,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     KC_LSFT, KC_Z,  KC_X,   KC_C,   KC_V,   KC_B,               KC_N,   KC_M,   KC_COMM,KC_DOT, KC_SLSH,RSFT_T(KC_ENT), \
                     X_____X, KC_LGUI,                                             KC_RALT, X_____X,                    \
                                     MO(_LOWER), LSFT(KC_LALT),   KC_SPC, MO(_RAISE),                                \
-                                    MO(_MOVE), KC_LGUI,    KC_LALT, VIM_START,                                 \
-                                    KC_LALT,KC_LGUI,             KC_RGUI,KC_RALT                                    \
+                                    MO(_MOVE), KC_LGUI,    VIM_START, X_____X,                                 \
+                                    KC_LALT,KC_LGUI,             KC_MS_BTN2,KC_MS_BTN1                                    \
 ),
 
 [_LOWER] = LAYOUT_xton_wired_wrong(
@@ -54,8 +55,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   KC_DEL,  X_____X, LGUI(KC_LBRC), LGUI(LSFT(KC_LBRC)), LGUI(LSFT(KC_RBRC)), LGUI(KC_RBRC), KC_HOME, KC_PGDN, KC_PGUP, KC_END, X_____X,     KC_PIPE, \
   _______, X_____X, X_____X, X_____X, X_____X, X_____X, X_____X,  KC_UNDS,   KC_PLUS, KC_LCBR, KC_RCBR,     FIREY_RETURN, \
                                    _______,  _______,             _______, _______,                                     \
-                                            _______,_______,    _______,_______,                                   \
                                             _______, KC_LALT,    _______,_______,                                   \
+                                            _______, _______,    _______,_______,                                   \
                                             RESET,  _______,    _______,_______                                    \
 ),
 
@@ -64,8 +65,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   KC_DEL,  X_____X,     X_____X, X_____X, X_____X,    X_____X, KC_LEFT, KC_DOWN, KC_UP,   KC_RGHT,X_____X,   KC_BSLS,\
   _______, X_____X,     X_____X, X_____X, X_____X,    X_____X, X_____X, KC_MINS, KC_EQL,  KC_LBRC, KC_RBRC,      FIREY_RETURN, \
                                       _______, _______,             _______, _______,                                     \
-                                            _______,_______,    _______,_______,                                   \
                                             _______,_______,    KC_LGUI,_______,                                   \
+                                            _______,_______,    _______,_______,                                   \
                                             _______,_______,    _______,RESET                                    \
 ),
 [_ADJUST] = LAYOUT_xton_wired_wrong(
@@ -99,6 +100,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 extern uint8_t vim_cmd_layer(void) { return _CMD; }
 uint32_t layer_state_set_user(uint32_t state) {
+#ifdef TRACKBALL_ENABLED
+  if(state & (0x1 << _LOWER)) tb_ball_mode = TB_MODE_SCROLL;
+  else if(state & (0x1 << _RAISE)) tb_ball_mode = TB_MODE_ARROW;
+  else tb_ball_mode = TB_MODE_MOUSE;
+#endif
   return update_tri_layer_state(state, _RAISE, _LOWER, _ADJUST);
 }
 
