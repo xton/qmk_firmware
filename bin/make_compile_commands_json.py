@@ -5,12 +5,22 @@ import re
 import inspect
 from pathlib import Path
 import json
+import shlex
+from itertools import takewhile
+from functools import lru_cache
+from subprocess import check_output
 
 script_path = Path(inspect.getframeinfo(inspect.currentframe()).filename)
 qmk_dir = str(script_path.parent.parent.resolve())
 
 
-# false || printf "Compiling: quantum/quantum.c" | awk '{ printf "%-99s", $0; }'
+@lru_cache(maxsize=10)
+def system_libs(binary):
+    try:
+        return list(Path(check_output(['which', binary]).rstrip().decode()).resolve().parent.parent.glob("*/include"))
+    except Exception:
+        return []
+
 
 file_re = re.compile(r"""printf "Compiling: ([^"]+)""")
 cmd_re = re.compile(r"""LOG=\$\(([^\)]+)\)""")
@@ -31,8 +41,11 @@ with open(sys.argv[1]) as f:
             if m:
                 # we have a hit!
                 this_cmd = m.group(1)
-                records.append({"directory": qmk_dir, "command": this_cmd, "file": this_file})
+                args = shlex.split(this_cmd)
+                args = list(takewhile(lambda x: x != '&&', args))
+                args += ['-I%s' % s for s in system_libs(args[0])]
+                new_cmd = ' '.join(shlex.quote(s) for s in args if s != '-mno-thumb-interwork')
+                records.append({"directory": qmk_dir, "command": new_cmd, "file": this_file})
                 state = 'start'
 
 print(json.dumps(records, indent=4))
-
