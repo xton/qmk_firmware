@@ -26,12 +26,25 @@
 #define PRODUCT         SharlingKB
 #define DESCRIPTION     
 
+/*
+ * Keyboard Matrix Assignments
+ *
+ * Change this to how you wired your keyboard
+ * COLS: AVR pins used for columns, left to right
+ * ROWS: AVR pins used for rows, top to bottom
+ * DIODE_DIRECTION: COL2ROW = COL = Anode (+), ROW = Cathode (-, marked on diode)
+ *                  ROW2COL = ROW = Anode (+), COL = Cathode (-, marked on diode)
+ *
+ */
 /* key matrix size */
-#define MATRIX_ROWS 1
-#define MATRIX_COLS 1
+#define MATRIX_ROWS 6
+#define MATRIX_COLS 17 
 
-#define MATRIX_ROW_PINS { B9 }
-#define MATRIX_COL_PINS { B0 }
+#define MATRIX_ROW_PINS { B0, B1, B2, B3, B4, B5 }
+#define MATRIX_COL_PINS { B12, B11, B10, B9, B15, B14, B13, B8, A0, A1, A2, A15, A8, A7, A6, A5, A4 }
+
+/* COL2ROW, ROW2COL*/
+#define DIODE_DIRECTION COL2ROW
 
 /* Debounce reduces chatter (unintended double-presses) - set 0 if debouncing is not needed */
 #define DEBOUNCE 6

@@ -28,18 +28,18 @@
 /* #define DESCRIPTION     A compact ortholinear keyboard */
 
 /* key matrix size */
-#undef MATRIX_ROWS
-#undef MATRIX_COLS
+/* #undef MATRIX_ROWS */
+/* #undef MATRIX_COLS */
 
-#undef MATRIX_ROW_PINS 
-#undef MATRIX_COL_PINS
+/* #undef MATRIX_ROW_PINS */ 
+/* #undef MATRIX_COL_PINS */
 
 
-#define MATRIX_ROWS 6
-#define MATRIX_COLS 17 
+/* #define MATRIX_ROWS 6 */
+/* #define MATRIX_COLS 17 */ 
 
-#define MATRIX_ROW_PINS { B0, B1, B2, B3, B4, B5 }
-#define MATRIX_COL_PINS { B12, B11, B10, B9, B15, B14, B13, B8, A0, A1, A2, A15, A8, A7, A6, A5, A4 }
+/* #define MATRIX_ROW_PINS { B0, B1, B2, B3, B4, B5 } */
+/* #define MATRIX_COL_PINS { B12, B11, B10, B9, B15, B14, B13, B8, A0, A1, A2, A15, A8, A7, A6, A5, A4 } */
 
 
 /* Debounce reduces chatter (unintended double-presses) - set 0 if debouncing is not needed */

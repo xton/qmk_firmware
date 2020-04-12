@@ -12,8 +12,8 @@
 #include <string.h>
 
 /*
- * cols: { B12, B11, B10, B9, B15, B14, B13, B8, A0, A1, A2, A15, A8, A7, A6, A5, A4 }
  * rows: { B0, B1, B2, B3, B4, B5 }
+ * cols: { B12, B11, B10, B9, B15, B14, B13, B8, A0, A1, A2, A15, A8, A7, A6, A5, A4 }
  */
 /* matrix state(1:on, 0:off) */
 static matrix_row_t matrix[MATRIX_ROWS];
