@@ -75,7 +75,6 @@ void matrix_init(void) {
     memset(matrix, 0, MATRIX_ROWS * sizeof(matrix_row_t));
     memset(matrix_debouncing, 0, MATRIX_COLS * sizeof(matrix_row_t));
 
-
     matrix_init_quantum();
 }
 
@@ -174,7 +173,7 @@ matrix_row_t matrix_get_row(uint8_t row) {
 }
 
 void matrix_print(void) {
-    printf("\nr/c 01234567\n");
+    printf("\nr/c 0123456789ABCDEFG\n");
     for (uint8_t row = 0; row < MATRIX_ROWS; row++) {
         printf("%X0: ", row);
         matrix_row_t data = matrix_get_row(row);
