@@ -9,7 +9,7 @@ import shlex
 import qmk.keymap
 
 
-def create_make_command(keyboard, keymap, target=None):
+def create_make_command(keyboard, keymap, target=None, dry_run=False):
     """Create a make compile command
 
     Args:
@@ -23,6 +23,9 @@ def create_make_command(keyboard, keymap, target=None):
         target
             Usually a bootloader.
 
+        dry_run
+            make -n -- don't actually build
+
     Returns:
 
         A command that can be run to make the specified keyboard and keymap
@@ -32,7 +35,10 @@ def create_make_command(keyboard, keymap, target=None):
     if target:
         make_args.append(target)
 
-    return ['make', ':'.join(make_args)]
+    if dry_run:
+        return ['make', '-n', ':'.join(make_args)]
+    else:
+        return ['make', ':'.join(make_args)]
 
 
 def compile_configurator_json(user_keymap, bootloader=None):

@@ -10,12 +10,15 @@ from itertools import takewhile
 from functools import lru_cache
 from subprocess import check_output
 
+
+from typing import TextIO, List, Dict
+
 script_path = Path(inspect.getframeinfo(inspect.currentframe()).filename)
 qmk_dir = str(script_path.parent.parent.resolve())
 
 
 @lru_cache(maxsize=10)
-def system_libs(binary):
+def system_libs(binary: str):
     try:
         return list(Path(check_output(['which', binary]).rstrip().decode()).resolve().parent.parent.glob("*/include"))
     except Exception:
@@ -25,10 +28,10 @@ def system_libs(binary):
 file_re = re.compile(r"""printf "Compiling: ([^"]+)""")
 cmd_re = re.compile(r"""LOG=\$\(([^\)]+)\)""")
 
-state = 'start'
-this_file = None
-records = []
-with open(sys.argv[1]) as f:
+def parse_make_n(f: TextIO) -> List[Dict[str,str]]:
+    state = 'start'
+    this_file = None
+    records = []
     for line in f:
         if state == 'start':
             m = file_re.search(line)
@@ -48,4 +51,8 @@ with open(sys.argv[1]) as f:
                 records.append({"directory": qmk_dir, "command": new_cmd, "file": this_file})
                 state = 'start'
 
-print(json.dumps(records, indent=4))
+    return records
+
+if __name__ == '__main__':
+    with open(sys.argv[1]) as f:
+        print(json.dumps(parse_make_n(f), indent=4))
