@@ -13,9 +13,7 @@ from subprocess import check_output
 
 from typing import TextIO, List, Dict
 
-script_path = Path(inspect.getframeinfo(inspect.currentframe()).filename)
-qmk_dir = str(script_path.parent.parent.resolve())
-
+qmk_dir = Path(__file__).parent.parent.parent.parent
 
 @lru_cache(maxsize=10)
 def system_libs(binary: str):
@@ -48,7 +46,7 @@ def parse_make_n(f: TextIO) -> List[Dict[str,str]]:
                 args = list(takewhile(lambda x: x != '&&', args))
                 args += ['-I%s' % s for s in system_libs(args[0])]
                 new_cmd = ' '.join(shlex.quote(s) for s in args if s != '-mno-thumb-interwork')
-                records.append({"directory": qmk_dir, "command": new_cmd, "file": this_file})
+                records.append({"directory": str(qmk_dir), "command": new_cmd, "file": this_file})
                 state = 'start'
 
     return records

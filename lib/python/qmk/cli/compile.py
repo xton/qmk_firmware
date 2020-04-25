@@ -10,7 +10,7 @@ from milc import cli
 import qmk.path
 from qmk.decorators import automagic_keyboard, automagic_keymap
 from qmk.commands import compile_configurator_json, create_make_command, parse_configurator_json
-from qmk.compile_commands_json import parse_make_n
+from qmk.compile_commands_json import parse_make_n, qmk_dir
 from pathlib import Path
 import json
 
@@ -19,7 +19,7 @@ import json
 @cli.argument('-kb', '--keyboard', help='The keyboard to build a firmware for. Ignored when a configurator export is supplied.')
 @cli.argument('-km', '--keymap', help='The keymap to build a firmware for. Ignored when a configurator export is supplied.')
 @cli.argument('-n', '--dry-run', arg_only=True, action='store_true', help="Don't actually build, just show the make command to be run.")
-@cli.argument('-b', '--builddb', arg_only=True, action='store_true', help="Does a make clean, then a make -n, and uses the dry-run output to create the build databse (compile_commands.json)") 
+@cli.argument('-b', '--builddb', arg_only=True, action='store_true', help="Does a make clean, then a make -n, and uses the dry-run output to create a compilation database (compile_commands.json). This file can help some IDEs and IDE-like editors work better. For more information about this: https://clang.llvm.org/docs/JSONCompilationDatabase.html")
 @cli.subcommand('Compile a QMK Firmware.')
 @automagic_keyboard
 @automagic_keymap
@@ -55,7 +55,7 @@ def compile(cli):
     if command:
         if cli.args.builddb:
             cli.log.info('Making clean')
-            subprocess.run(['make','clean'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            subprocess.run(['make', 'clean'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
             cli.log.info('Gathering build instructions')
             proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
@@ -63,15 +63,14 @@ def compile(cli):
             res = proc.wait()
             if res != 0:
                 raise RuntimeError(f"Got error from: {repr(command)}")
-                
 
             cli.log.info(f"Found {len(db)} compile commands")
 
-            dbpath = Path(__file__).resolve().parent.parent.parent.parent.parent / 'compile_commands.json'
-            
+            dbpath = qmk_dir / 'compile_commands.json'
+
             cli.log.info(f"Writing build database to {dbpath}")
             dbpath.write_text(json.dumps(db, indent=4))
-            
+
         else:
             # Compile the firmware, if we're able to
             cli.log.info('Compiling keymap with {fg_cyan}%s', ' '.join(command))
