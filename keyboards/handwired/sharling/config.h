@@ -51,6 +51,13 @@
 
 #define IS_COMMAND() (get_mods() == (MOD_BIT(KC_LGUI) | MOD_BIT(KC_RGUI)))
 
+
+/* rgb support */
+#define RGB_DI_PIN B6
+#define RGBLED_NUM 16
+#define RGBLIGHT_ANIMATIONS
+#define RGBLIGHT_LAYERS
+
 /* Mechanical locking support. Use KC_LCAP, KC_LNUM or KC_LSCR instead in keymap */
 //#define LOCKING_SUPPORT_ENABLE
 /* Locking resynchronize hack */
