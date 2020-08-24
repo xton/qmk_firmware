@@ -1,5 +1,6 @@
 #include QMK_KEYBOARD_H
 #include "xtonhasvim.h"
+#include "muse.h"
 
 // Each layer gets a name for readability, which is then used in the keymap matrix below.
 // The underscores don't mean anything - you can have a layer called STUFF or any other name.
@@ -108,3 +109,19 @@ layer_state_t layer_state_set_user(layer_state_t state) {
 /* bool process_record_user(uint16_t keycode, keyrecord_t *record) { */
 /*   return true; */
 /* } */
+
+void matrix_scan_keymap(void) {
+  #ifdef AUDIO_ENABLE
+    if (muse_mode) {
+      if (muse_counter == 0) {
+        uint8_t muse_note = muse_offset + SCALE[muse_clock_pulse()];
+        if (muse_note != last_muse_note) {
+          stop_note(compute_freq_for_midi_note(last_muse_note));
+          play_note(compute_freq_for_midi_note(muse_note), 0xF);
+          last_muse_note = muse_note;
+        }
+      }
+      muse_counter = (muse_counter + 1) % muse_tempo;
+    }
+  #endif
+}
